@@ -311,8 +311,14 @@
               clonedElement.style.zoom = '1';
               clonedElement.style.width = '1440px';
               clonedElement.style.maxWidth = '1440px';
-              clonedElement.style.padding = '20px 30px'; 
+              clonedElement.style.padding = '40px 40px'; 
               
+              // Exported image ke liye hidden title ko unhide karein
+              const exportTitle = clonedDocument.getElementById('export-title-hidden');
+              if (exportTitle) {
+                exportTitle.style.display = 'block';
+              }
+
               // Text ko cut hone se rokne ke liye overflow theek kiya
               const textElements = clonedElement.querySelectorAll('h3, div, p, span');
               textElements.forEach(t => {
@@ -390,7 +396,16 @@
             <div className="max-w-[90rem] mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-3">
                 <Trophy size={28} className="text-yellow-400" />
-                <h1 className="text-xl font-bold tracking-wide">Star Performers Platform</h1>
+                <h1 className="text-xl font-bold tracking-wide flex items-baseline gap-2">
+                  {activeTab === 'wall' ? (
+                    <>
+                      <span className="uppercase">{selectedType} {selectedType !== 'Shine 100 Star Performer' ? 'of the Month' : ''}</span>
+                      <span className="text-sm font-semibold text-blue-200 tracking-normal">({selectedSession})</span>
+                    </>
+                  ) : (
+                    'Star Performers Platform'
+                  )}
+                </h1>
               </div>
               
               <div className="flex bg-blue-800 p-1 rounded-lg">
@@ -539,20 +554,20 @@
                 {/* CSS Zoom is applied here dynamically */}
                 <div id="wall-export-area" className="bg-slate-50 pt-2 pb-4 px-2" style={{ zoom: `${zoomLevel}%` }}>
                   
-                  {/* Title - Reduced Top Margin/Padding to exactly 0 to minimize empty space */}
-                  <div className="text-center pb-0 mb-1">
-                    <h2 className="text-2xl font-extrabold text-slate-800 uppercase tracking-wide">
+                  {/* HIDDEN TITLE FOR EXPORT ONLY - Screen par hidden rakha hai space bachane ke liye, but export me dikhega! */}
+                  <div id="export-title-hidden" className="hidden text-center pb-6 mb-4 pt-2">
+                    <h2 className="text-4xl font-extrabold text-slate-800 uppercase tracking-wide">
                       {selectedType} {selectedType !== 'Shine 100 Star Performer' ? 'of the Month' : ''}
                     </h2>
-                    <div className="flex items-center justify-center gap-2 mt-1">
-                      <div className="h-[1px] w-10 bg-yellow-400"></div>
-                      <p className="text-slate-500 font-bold text-sm">Session {selectedSession}</p>
-                      <div className="h-[1px] w-10 bg-yellow-400"></div>
+                    <div className="flex items-center justify-center gap-2 mt-3">
+                      <div className="h-[2px] w-16 bg-yellow-400"></div>
+                      <p className="text-slate-500 font-bold text-xl">Session {selectedSession}</p>
+                      <div className="h-[2px] w-16 bg-yellow-400"></div>
                     </div>
                   </div>
 
                   {/* 12 Months Grid - Highly compact gaps. gap-y-5 used for minimal row distance */}
-                  <div className={`grid gap-x-3 gap-y-5 pt-4 pb-0 mt-0 ${
+                  <div className={`grid gap-x-3 gap-y-5 pt-0 pb-0 mt-0 ${
                     gridLayout === '2' ? 'grid-cols-1 sm:grid-cols-2' :
                     gridLayout === '3' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
                     gridLayout === '6' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6' :
@@ -574,7 +589,7 @@
                         return (
                           <div 
                             key={month} 
-                            className={`bg-white rounded-xl shadow-md border ${currentTheme.border} hover:shadow-lg transition-all duration-300 group relative flex flex-col z-10`}
+                            className={`bg-white rounded-xl shadow-md border ${currentTheme.border} hover:shadow-lg transition-all duration-300 group relative flex flex-col z-10 mt-10`}
                           >
                             {/* Golden Star Badge */}
                             <div className="absolute -top-3 -right-3 z-40">
@@ -636,7 +651,7 @@
                         );
                       } else {
                         return (
-                          <div key={month} className={`bg-white rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-4 h-[168px] text-slate-400 shadow-sm transition-all duration-300 z-10`}>
+                          <div key={month} className={`bg-white rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-4 h-[168px] text-slate-400 shadow-sm transition-all duration-300 z-10 mt-10`}>
                             <Calendar size={24} className="mb-2 text-slate-300" />
                             <p className="font-extrabold text-slate-500 text-sm">{displayMonthYear}</p>
                             <p className="text-[9px] mt-1 font-medium bg-slate-100 px-2 py-0.5 rounded text-slate-500">Awaiting Entry</p>
@@ -681,12 +696,12 @@
                             <div className="w-10 h-1 bg-gradient-to-r from-yellow-300 to-yellow-500 my-2 rounded-full"></div>
                             
                             <div className="flex flex-col items-center gap-1.5 text-slate-700 font-bold text-xs w-full max-w-[240px]">
-                              <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
+                              <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
                                 <Building size={12} className="text-blue-600" /> 
                                 <span>Dealership: {yearWinner.dealership}</span>
                               </div>
                               {yearWinner.location && 
-                                <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
+                                <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
                                   <MapPin size={12} className="text-red-500" /> 
                                   <span>Location: {yearWinner.location}</span>
                                 </div>
