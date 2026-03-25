@@ -555,7 +555,7 @@
                 <div id="wall-export-area" className="bg-slate-50 pt-2 pb-4 px-2" style={{ zoom: `${zoomLevel}%` }}>
                   
                   {/* HIDDEN TITLE FOR EXPORT ONLY - Screen par hidden rakha hai space bachane ke liye, but export me dikhega! */}
-                  <div id="export-title-hidden" className="hidden text-center pb-6 mb-4 pt-2">
+                  <div id="export-title-hidden" className="hidden text-center pb-2 mb-2 pt-0">
                     <h2 className="text-4xl font-extrabold text-slate-800 uppercase tracking-wide">
                       {selectedType} {selectedType !== 'Shine 100 Star Performer' ? 'of the Month' : ''}
                     </h2>
@@ -566,8 +566,8 @@
                     </div>
                   </div>
 
-                  {/* 12 Months Grid - Highly compact gaps. gap-y-5 used for minimal row distance */}
-                  <div className={`grid gap-x-3 gap-y-5 pt-0 pb-0 mt-0 ${
+                  {/* 12 Months Grid - Highly compact gaps. gap-y-9 perfectly aligns with the -top-8 avatar */}
+                  <div className={`grid gap-x-3 gap-y-9 pt-8 pb-0 mt-0 ${
                     gridLayout === '2' ? 'grid-cols-1 sm:grid-cols-2' :
                     gridLayout === '3' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
                     gridLayout === '6' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6' :
@@ -589,7 +589,7 @@
                         return (
                           <div 
                             key={month} 
-                            className={`bg-white rounded-xl shadow-md border ${currentTheme.border} hover:shadow-lg transition-all duration-300 group relative flex flex-col z-10 mt-10`}
+                            className={`bg-white rounded-xl shadow-md border ${currentTheme.border} hover:shadow-lg transition-all duration-300 group relative flex flex-col z-10`}
                           >
                             {/* Golden Star Badge */}
                             <div className="absolute -top-3 -right-3 z-40">
@@ -651,7 +651,7 @@
                         );
                       } else {
                         return (
-                          <div key={month} className={`bg-white rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-4 h-[168px] text-slate-400 shadow-sm transition-all duration-300 z-10 mt-10`}>
+                          <div key={month} className={`bg-white rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-4 h-[168px] text-slate-400 shadow-sm transition-all duration-300 z-10`}>
                             <Calendar size={24} className="mb-2 text-slate-300" />
                             <p className="font-extrabold text-slate-500 text-sm">{displayMonthYear}</p>
                             <p className="text-[9px] mt-1 font-medium bg-slate-100 px-2 py-0.5 rounded text-slate-500">Awaiting Entry</p>
