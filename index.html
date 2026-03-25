@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Star Performers Platform</title>
+  
+  <!-- Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Babel to compile React JSX in the browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Note: type="text/babel" and data-type="module" allows using real import statements -->
+  <script type="text/babel" data-type="module">
+    // 100% exact imports as your original code, just routed through esm.sh CDN so the browser understands them
+    import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18.2.0';
+    import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
+    import { Award, User, Building, Calendar, Image as ImageIcon, Trash2, PlusCircle, LayoutGrid, Database, Save, Loader2, Users, UserCheck, MapPin, Edit, Star, Crown, Trophy, Printer, X, Settings2, ChevronDown, ChevronUp, Palette } from 'https://esm.sh/lucide-react@0.294.0';
+
+    // --- Configuration & Constants ---
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby16y1DHDP33sVhTZKGlD6j_z278bbX1kx6_POi8GZS7G3EJuh-hjSVEyMAaKFu76VGXA/exec'; 
+
+    const MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+    const TYPES = ['Employee', 'AD', 'EC', 'Shine 100 Star Performer']; 
+    const SESSIONS = ['2024-25', '2025-26', '2026-27', '2027-28'];
+
+    // --- THEMES FOR TOP 12 CARDS ---
+    const THEMES = {
+      classic: { label: 'Classic Original', header: 'from-blue-900 via-blue-800 to-blue-600', text: 'text-blue-900', border: 'border-slate-100' },
+      gold: { label: 'Royal Gold', header: 'from-yellow-500 via-yellow-400 to-yellow-600', text: 'text-yellow-900', border: 'border-yellow-200' },
+      blue: { label: 'Ocean Blue', header: 'from-blue-600 via-blue-500 to-blue-700', text: 'text-blue-900', border: 'border-blue-200' },
+      red: { label: 'Ruby Red', header: 'from-red-900 via-red-800 to-red-600', text: 'text-red-900', border: 'border-red-200' },
+      green: { label: 'Emerald Green', header: 'from-emerald-900 via-emerald-800 to-emerald-600', text: 'text-emerald-900', border: 'border-emerald-200' },
+      dark: { label: 'Midnight Slate', header: 'from-slate-900 via-slate-800 to-slate-700', text: 'text-slate-900', border: 'border-slate-300' }
+    };
+
+    // Helper to calculate the display string like "Apr-25"
+    const getMonthYearDisplay = (session, month) => {
+      const [startYear, endYear] = session.split('-');
+      const isNextYear = ['Jan', 'Feb', 'Mar'].includes(month);
+      const yearSuffix = isNextYear ? endYear : startYear.substring(2);
+      return `${month}-${yearSuffix}`;
+    };
+
+    // Image Compression Helper
+    const compressImage = (file) => {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 400;
+            const scaleSize = MAX_WIDTH / img.width;
+            canvas.width = MAX_WIDTH;
+            canvas.height = img.height * scaleSize;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', 0.8));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    };
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('wall'); 
+      
+      // Wall Filters & Features
+      const [selectedSession, setSelectedSession] = useState('2025-26');
+      const [selectedType, setSelectedType] = useState('Employee');
+      const [showYearWinner, setShowYearWinner] = useState(false); 
+      const [gridLayout, setGridLayout] = useState('4'); 
+      const [cardSize, setCardSize] = useState('medium'); // Overall card size
+      const [profilePicSize, setProfilePicSize] = useState('medium'); // Inner user pic size
+      const [showAdvancedSettings, setShowAdvancedSettings] = useState(false); 
+      const [selectedTheme, setSelectedTheme] = useState('classic'); // Default to Classic Theme
+
+      // Data State
+      const [awardsData, setAwardsData] = useState([]);
+      const [profilesData, setProfilesData] = useState([]); 
+      const [loading, setLoading] = useState(true);
+
+      // Form State (For Master Profiles)
+      const [profileForm, setProfileForm] = useState({
+        type: 'Employee',
+        name: '',
+        dealership: '',
+        location: '',
+        image: null
+      });
+      const [editingProfileId, setEditingProfileId] = useState(null); 
+
+      // Form State (For Assigning Awards)
+      const [assignForm, setAssignForm] = useState({
+        type: 'Employee',
+        session: '2025-26',
+        month: 'Apr',
+        profileId: ''
+      });
+
+      const [isSaving, setIsSaving] = useState(false);
+      const fileInputRef = useRef(null);
+
+      // --- Data Fetching from Google Sheets ---
+      const fetchData = async () => {
+        try {
+          const response = await fetch(`${SCRIPT_URL}?action=getData`);
+          const data = await response.json();
+          setProfilesData(data.profiles || []);
+          setAwardsData(data.awards || []);
+        } catch (error) {
+          console.error("Data Fetch Error:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      useEffect(() => {
+        fetchData();
+      }, []);
+
+      // --- Google Sheets POST Request Helper ---
+      const sendToSheet = async (action, data) => {
+        try {
+          const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify({ action, data })
+          });
+          
+          let result;
+          try {
+            result = await response.json();
+          } catch (parseError) {
+            throw new Error("Server response was not valid JSON. Please check if Google Apps Script is deployed properly as a New Version.");
+          }
+          
+          if (!result.success) throw new Error(result.error || 'Failed to save on server');
+          
+          await fetchData(); // Refresh data after saving
+          return true;
+        } catch (error) {
+          console.error(`Error during ${action}:`, error);
+          alert(`Error saving data: ${error.message}\n\nTIP: Ensure you deployed your Google Apps Script as a "New Version" and allowed permissions!`);
+          return false;
+        }
+      };
+
+      // --- Save / Update Master Profile ---
+      const handleSaveProfile = async () => {
+        if (!profileForm.name || !profileForm.dealership || !profileForm.location || !profileForm.image) {
+          alert("Please fill in all details and upload an image!");
+          return;
+        }
+
+        setIsSaving(true);
+        
+        try {
+          let success = false;
+          if (editingProfileId) {
+            success = await sendToSheet('updateProfile', {
+              id: editingProfileId,
+              type: profileForm.type,
+              name: profileForm.name,
+              dealership: profileForm.dealership,
+              location: profileForm.location,
+              image: profileForm.image,
+              updatedAt: new Date().toISOString()
+            });
+            if (success) setEditingProfileId(null); 
+          } else {
+            success = await sendToSheet('saveProfile', {
+              type: profileForm.type,
+              name: profileForm.name,
+              dealership: profileForm.dealership,
+              location: profileForm.location,
+              image: profileForm.image,
+              createdAt: new Date().toISOString()
+            });
+          }
+          
+          if (success) {
+            setProfileForm({ type: profileForm.type, name: '', dealership: '', location: '', image: null });
+          }
+        } finally {
+          setIsSaving(false); 
+        }
+      };
+
+      const handleEditClick = (profile) => {
+        setProfileForm({
+          type: profile.type,
+          name: profile.name,
+          dealership: profile.dealership,
+          location: profile.location,
+          image: profile.image
+        });
+        setEditingProfileId(profile.id);
+        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+      };
+
+      const cancelEdit = () => {
+        setProfileForm(prev => ({ ...prev, name: '', dealership: '', location: '', image: null }));
+        setEditingProfileId(null);
+      };
+
+      // --- Assign Award to Wall ---
+      const handleAssignAward = async () => {
+        if (!assignForm.profileId) {
+          alert("Please select a profile!");
+          return;
+        }
+
+        setIsSaving(true);
+        try {
+          const selectedProfile = profilesData.find(p => p.id === assignForm.profileId);
+          
+          if (selectedProfile) {
+            const success = await sendToSheet('assignAward', {
+              type: assignForm.type,
+              session: assignForm.session,
+              month: assignForm.month,
+              profileId: selectedProfile.id,
+              name: selectedProfile.name,
+              dealership: selectedProfile.dealership,
+              location: selectedProfile.location,
+              image: selectedProfile.image,
+              createdAt: new Date().toISOString()
+            });
+            
+            if (success) {
+              setAssignForm(prev => ({ ...prev, profileId: '' }));
+            }
+          }
+        } finally {
+          setIsSaving(false); 
+        }
+      };
+
+      // --- Delete Functions ---
+      const handleDeleteAward = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this award entry?")) return;
+        await sendToSheet('deleteAward', { id });
+      };
+
+      const handleDeleteProfile = async (id) => {
+        if (!window.confirm("Are you sure you want to permanently delete this profile from the master database?")) return;
+        const success = await sendToSheet('deleteProfile', { id });
+        if (success && editingProfileId === id) cancelEdit();
+      };
+
+      const handleImageChange = async (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const compressedBase64 = await compressImage(file);
+          setProfileForm(prev => ({ ...prev, image: compressedBase64 }));
+        }
+      };
+
+      // --- Calculate "Of the Year" Winner ---
+      const getOfTheYearWinner = () => {
+        const relevantAwards = awardsData.filter(a => a.session === selectedSession && a.type === selectedType);
+        if (relevantAwards.length === 0) return null;
+
+        const counts = {};
+        relevantAwards.forEach(award => {
+          counts[award.profileId] = (counts[award.profileId] || 0) + 1;
+        });
+
+        let maxCount = 0;
+        let winnerId = null;
+        for (const [id, count] of Object.entries(counts)) {
+          if (count > maxCount) {
+            maxCount = count;
+            winnerId = id;
+          }
+        }
+
+        if (!winnerId) return null;
+
+        const winnerProfile = profilesData.find(p => p.id === winnerId);
+        const fallbackData = relevantAwards.find(a => a.profileId === winnerId);
+
+        return {
+          ...(fallbackData || {}),
+          ...(winnerProfile || {}), 
+          winCount: maxCount
+        };
+      };
+
+      if (loading) {
+        return (
+          <div className="min-h-screen flex items-center justify-center bg-slate-50">
+            <Loader2 className="animate-spin text-blue-600" size={48} />
+            <span className="ml-3 text-lg font-medium text-slate-600">Loading Wall of Fame...</span>
+          </div>
+        );
+      }
+
+      const yearWinner = getOfTheYearWinner();
+      const currentTheme = THEMES[selectedTheme];
+
+      return (
+        <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20">
+          
+          {/* Top Main Navigation */}
+          <header className="bg-blue-900 text-white shadow-md sticky top-0 z-40">
+            <div className="max-w-[90rem] mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="flex items-center gap-3">
+                <Trophy size={32} className="text-yellow-400" />
+                <h1 className="text-2xl font-bold tracking-wide">Star Performers Platform</h1>
+              </div>
+              
+              <div className="flex bg-blue-800 p-1 rounded-lg">
+                <button
+                  onClick={() => setActiveTab('wall')}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md font-medium transition-all text-sm ${activeTab === 'wall' ? 'bg-white text-blue-900 shadow' : 'text-blue-100 hover:text-white'}`}
+                >
+                  <LayoutGrid size={16} />
+                  Wall of Fame
+                </button>
+                <button
+                  onClick={() => setActiveTab('profiles')}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md font-medium transition-all text-sm ${activeTab === 'profiles' ? 'bg-white text-blue-900 shadow' : 'text-blue-100 hover:text-white'}`}
+                >
+                  <Users size={16} />
+                  Master Data
+                </button>
+                <button
+                  onClick={() => setActiveTab('assign')}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-md font-medium transition-all text-sm ${activeTab === 'assign' ? 'bg-white text-blue-900 shadow' : 'text-blue-100 hover:text-white'}`}
+                >
+                  <UserCheck size={16} />
+                  Assign Awards
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* INCREASED MAX WIDTH HERE */}
+          <main className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            {/* =======================
+                VIEW 1: WALL OF FAME
+                ======================= */}
+            {activeTab === 'wall' && (
+              <div className="space-y-6">
+                
+                {/* Filters Navigation Panel */}
+                <div className="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200/80 flex flex-col gap-4 w-fit mx-auto transition-all duration-300 relative z-30">
+                  
+                  <div className="flex flex-wrap justify-center items-center gap-4">
+                    {/* Type Tabs */}
+                    <div className="flex gap-1.5 bg-slate-100/80 p-1.5 rounded-xl shadow-inner border border-slate-200/50 overflow-x-auto">
+                      {TYPES.map(type => (
+                        <button
+                          key={type}
+                          onClick={() => setSelectedType(type)}
+                          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all whitespace-nowrap flex items-center gap-1.5 ${selectedType === type ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-200 hover:text-slate-800'}`}
+                        >
+                          {type === 'Shine 100 Star Performer' && <Star size={14} className={selectedType === type ? "text-yellow-400" : ""} fill={selectedType === type ? "currentColor" : "none"}/>}
+                          {type} {type !== 'Shine 100 Star Performer' ? 'of the Month' : ''}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Settings Toggle Button */}
+                    <button
+                      onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all font-bold text-sm whitespace-nowrap shadow-sm ${showAdvancedSettings ? 'bg-slate-800 text-white border-slate-800' : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300'}`}
+                    >
+                      <Settings2 size={16} />
+                      Settings
+                      {showAdvancedSettings ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
+                  </div>
+
+                  {/* Expandable Session Selector & Toggles */}
+                  {showAdvancedSettings && (
+                    <div className="flex items-center gap-4 flex-wrap justify-center pt-4 border-t border-slate-200/80 animate-fade-in">
+                      <div className="flex items-center gap-2 bg-yellow-50/80 px-4 py-2 rounded-xl border border-yellow-200 cursor-pointer hover:bg-yellow-100 transition-colors shadow-sm" onClick={() => setShowYearWinner(!showYearWinner)}>
+                        <input type="checkbox" checked={showYearWinner} onChange={() => {}} className="w-4 h-4 text-yellow-600 rounded border-gray-300 focus:ring-yellow-500 cursor-pointer" />
+                        <label className="text-sm font-bold text-yellow-800 cursor-pointer flex items-center gap-1.5">
+                          <Crown size={16} /> Show "{selectedType} of the Year"
+                        </label>
+                      </div>
+
+                      <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider pl-2">Session:</span>
+                        <select 
+                          value={selectedSession}
+                          onChange={(e) => setSelectedSession(e.target.value)}
+                          className="p-1.5 bg-transparent font-bold text-blue-900 focus:ring-0 outline-none text-sm cursor-pointer"
+                        >
+                          {SESSIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                      </div>
+
+                      {/* Theme Selector */}
+                      <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                        <Palette size={16} className="text-slate-400 ml-1" />
+                        <select 
+                          value={selectedTheme}
+                          onChange={(e) => setSelectedTheme(e.target.value)}
+                          className="p-1.5 bg-transparent font-bold text-slate-700 focus:ring-0 outline-none text-sm cursor-pointer"
+                          title="Card Theme"
+                        >
+                          {Object.entries(THEMES).map(([key, val]) => (
+                            <option key={key} value={key}>{val.label}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Grid Layout Selector */}
+                      <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                        <LayoutGrid size={16} className="text-slate-400 ml-1" />
+                        <select 
+                          value={gridLayout}
+                          onChange={(e) => setGridLayout(e.target.value)}
+                          className="p-1.5 bg-transparent font-bold text-slate-700 focus:ring-0 outline-none text-sm cursor-pointer"
+                          title="Grid Layout Settings"
+                        >
+                          <option value="2">2 Cards / Row</option>
+                          <option value="3">3 Cards / Row</option>
+                          <option value="4">4 Cards / Row</option>
+                          <option value="6">6 Cards / Row</option>
+                        </select>
+                      </div>
+
+                      {/* Card Size Selector */}
+                      <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                        <LayoutGrid size={16} className="text-slate-400 ml-1" />
+                        <select 
+                          value={cardSize}
+                          onChange={(e) => setCardSize(e.target.value)}
+                          className="p-1.5 bg-transparent font-bold text-slate-700 focus:ring-0 outline-none text-sm cursor-pointer"
+                          title="Card Size Settings"
+                        >
+                          <option value="small">Small Card</option>
+                          <option value="medium">Medium Card</option>
+                          <option value="large">Large Card</option>
+                        </select>
+                      </div>
+
+                      {/* Profile Pic Size Selector */}
+                      <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+                        <User size={16} className="text-slate-400 ml-1" />
+                        <select 
+                          value={profilePicSize}
+                          onChange={(e) => setProfilePicSize(e.target.value)}
+                          className="p-1.5 bg-transparent font-bold text-slate-700 focus:ring-0 outline-none text-sm cursor-pointer"
+                          title="User Profile Pic Settings"
+                        >
+                          <option value="small">Small Pic</option>
+                          <option value="medium">Medium Pic</option>
+                          <option value="large">Large Pic</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Title */}
+                <div className="text-center py-6">
+                  <h2 className="text-3xl font-extrabold text-slate-800 uppercase tracking-wide">
+                    {selectedType} {selectedType !== 'Shine 100 Star Performer' ? 'of the Month' : ''}
+                  </h2>
+                  <div className="flex items-center justify-center gap-2 mt-2">
+                    <div className="h-0.5 w-12 bg-yellow-400"></div>
+                    <p className="text-slate-500 font-bold text-lg">Session {selectedSession}</p>
+                    <div className="h-0.5 w-12 bg-yellow-400"></div>
+                  </div>
+                </div>
+
+                {/* 12 Months Grid - Added mb-24 to fix overlap with Year Winner */}
+                <div className={`grid gap-x-6 gap-y-20 pb-16 mb-8 ${
+                  gridLayout === '2' ? 'grid-cols-1 sm:grid-cols-2' :
+                  gridLayout === '3' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
+                  gridLayout === '6' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6' :
+                  'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                }`}>
+                  {MONTHS.map(month => {
+                    const rawEntry = awardsData.find(a => a.type === selectedType && a.session === selectedSession && a.month === month);
+                    const displayMonthYear = getMonthYearDisplay(selectedSession, month);
+
+                    let entry = rawEntry;
+                    if (rawEntry) {
+                      const liveProfile = profilesData.find(p => p.id === rawEntry.profileId);
+                      if (liveProfile) {
+                        entry = { ...rawEntry, name: liveProfile.name, dealership: liveProfile.dealership, location: liveProfile.location, image: liveProfile.image };
+                      }
+                    }
+
+                    // Sizing Logic specifically for the card padding/heights
+                    const cardSizing = {
+                      small: { text: "text-sm", headerHeight: "h-20", padding: "px-2 pb-3", emptyHeight: "h-48", starSide: 14, starMid: 20 },
+                      medium: { text: "text-base", headerHeight: "h-28", padding: "px-4 pb-4", emptyHeight: "h-60", starSide: 18, starMid: 26 },
+                      large: { text: "text-lg", headerHeight: "h-36", padding: "px-6 pb-5", emptyHeight: "h-72", starSide: 22, starMid: 32 }
+                    }[cardSize];
+
+                    // Sizing Logic specifically for the user profile picture
+                    const picSizing = {
+                      small: { wrapper: "w-20 h-20", topOffset: "-top-10", textMargin: "mt-12" },
+                      medium: { wrapper: "w-32 h-32", topOffset: "-top-16", textMargin: "mt-20" },
+                      large: { wrapper: "w-40 h-40", topOffset: "-top-20", textMargin: "mt-28" }
+                    }[profilePicSize];
+
+                    if (entry) {
+                      return (
+                        <div 
+                          key={month} 
+                          className={`bg-white rounded-2xl shadow-xl border ${currentTheme.border} hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group relative mt-16 flex flex-col h-full z-10`}
+                        >
+                          {/* Golden Star Badge */}
+                          <div className="absolute -top-4 -right-4 z-40">
+                            <div className="relative flex items-center justify-center">
+                              <Star size={48} className="text-yellow-400 drop-shadow-md" fill="currentColor" />
+                              <Award size={20} className={`absolute ${currentTheme.text}`} />
+                            </div>
+                          </div>
+
+                          {/* Dynamic Header */}
+                          <div className={`${cardSizing.headerHeight} bg-gradient-to-br ${currentTheme.header} relative rounded-t-2xl flex justify-center overflow-hidden transition-all duration-300`}>
+                            <div className="absolute top-[-50%] left-[-20%] w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                            <div className={`absolute top-3 left-3 bg-white/20 backdrop-blur-sm ${selectedTheme === 'gold' ? 'text-yellow-900' : 'text-white'} text-xs font-bold px-3 py-1 rounded shadow-inner uppercase tracking-wider z-10`}>
+                              {displayMonthYear}
+                            </div>
+                          </div>
+                          
+                          <div className={`flex flex-col items-center relative bg-white flex-grow rounded-b-2xl ${cardSizing.padding} transition-all duration-300`}>
+                            {/* ENHANCED Profile Picture Borders WITHOUT the Ribbon */}
+                            <div className={`absolute ${picSizing.topOffset} left-1/2 transform -translate-x-1/2 flex flex-col items-center z-20 transition-all duration-300`}>
+                              <div className={`${picSizing.wrapper} rounded-full border-[6px] border-white shadow-[0_8px_20px_rgb(0,0,0,0.15)] ring-2 ring-slate-200/50 bg-white flex items-center justify-center overflow-hidden z-20 relative transition-all duration-300`}>
+                                <img src={entry.image} alt={entry.name} className="w-full h-full object-cover" />
+                              </div>
+                            </div>
+                            
+                            {/* Text formatting below the picture */}
+                            <div className={`${picSizing.textMargin} text-center w-full transition-all duration-300 flex flex-col items-center flex-grow justify-between`}>
+                              <div className="w-full">
+                                <h3 className={`${cardSize === 'small' ? 'text-lg' : cardSize === 'large' ? 'text-2xl' : 'text-xl'} font-black text-slate-800 leading-tight tracking-tight uppercase truncate px-2 transition-all duration-300 w-full`}>
+                                  {entry.name}
+                                </h3>
+                                
+                                <div className={`flex flex-col items-center gap-2 text-slate-500 font-semibold ${cardSizing.text} transition-all duration-300 mt-3 w-full`}>
+                                  <span className="flex items-center justify-center gap-2 bg-slate-50 px-4 py-1.5 rounded-full w-full max-w-[200px] border border-slate-100"><Building size={16} className="text-blue-600 flex-shrink-0" /> <span className="truncate">{entry.dealership}</span></span>
+                                  {entry.location && <span className="flex items-center justify-center gap-2 bg-slate-50 px-4 py-1.5 rounded-full w-full max-w-[200px] border border-slate-100"><MapPin size={16} className="text-red-500 flex-shrink-0" /> <span className="truncate">{entry.location}</span></span>}
+                                </div>
+                              </div>
+
+                              {/* Dynamic 3 Stars added right below the location */}
+                              <div className="mt-4 flex gap-1.5 justify-center items-center">
+                                <Star className="text-yellow-400 drop-shadow-sm" fill="currentColor" size={cardSizing.starSide} />
+                                <Star className="text-yellow-500 drop-shadow-md" fill="currentColor" size={cardSizing.starMid} />
+                                <Star className="text-yellow-400 drop-shadow-sm" fill="currentColor" size={cardSizing.starSide} />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className={`absolute bottom-0 left-0 h-2 w-full bg-gradient-to-r ${currentTheme.header} rounded-b-2xl opacity-80`}></div>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div key={month} className={`bg-white rounded-2xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-6 ${cardSizing.emptyHeight} text-slate-400 mt-16 shadow-sm transition-all duration-300 z-10`}>
+                          <Calendar size={36} className="mb-3 text-slate-300" />
+                          <p className="font-extrabold text-slate-500 text-lg">{displayMonthYear}</p>
+                          <p className="text-xs mt-1 font-medium bg-slate-100 px-3 py-1 rounded text-slate-500">Awaiting Entry</p>
+                        </div>
+                      );
+                    }
+                  })}
+                </div>
+
+                {/* GRAND CARD - OF THE YEAR WINNER (Overlap Issue Fixed by giving more top margin and border) */}
+                {showYearWinner && (
+                  <div className="mt-24 pt-16 border-t-[3px] border-dashed border-slate-300 pb-10 animate-fade-in relative z-20">
+                    <div className="text-center mb-16">
+                      <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 uppercase tracking-widest drop-shadow-sm flex justify-center items-center gap-3">
+                        <Crown size={40} className="text-yellow-500" fill="currentColor" />
+                        {selectedType} of the Year
+                        <Crown size={40} className="text-yellow-500" fill="currentColor" />
+                      </h2>
+                      <p className="text-slate-600 font-bold mt-2 uppercase tracking-widest">Highest Achiever ({selectedSession})</p>
+                    </div>
+
+                    {yearWinner ? (
+                      <div 
+                        className="max-w-xl mx-auto bg-gradient-to-b from-yellow-100 via-white to-yellow-50 rounded-3xl shadow-[0_20px_50px_rgb(234,179,8,0.3)] border-2 border-yellow-300 overflow-hidden relative"
+                      >
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-300/30 rounded-full blur-3xl"></div>
+                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl"></div>
+
+                        <div className="h-32 bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 flex justify-center items-center relative overflow-hidden">
+                           <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
+                           <div className="absolute top-4 bg-white/80 backdrop-blur text-yellow-800 text-xs font-black px-4 py-1.5 rounded-full shadow-md border border-yellow-200 uppercase tracking-widest">
+                             {yearWinner.winCount} Times Winner
+                           </div>
+                        </div>
+
+                        <div className="flex flex-col items-center px-6 pb-10 relative z-10 pt-24">
+                          <div className="absolute -top-20 w-40 h-40 rounded-full border-8 border-white shadow-2xl bg-yellow-50 overflow-hidden p-1 ring-4 ring-yellow-400/30">
+                            <img src={yearWinner.image} alt={yearWinner.name} className="w-full h-full object-cover rounded-full" />
+                          </div>
+                          
+                          <h3 className="text-3xl font-black text-slate-900 text-center mt-2 uppercase tracking-tight">{yearWinner.name}</h3>
+                          <div className="w-16 h-1 bg-gradient-to-r from-yellow-300 to-yellow-500 my-4 rounded-full"></div>
+                          
+                          <div className="flex flex-col items-center gap-2 text-slate-700 font-bold text-sm">
+                            <span className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-yellow-100"><Building size={16} className="text-blue-600" /> Dealership: {yearWinner.dealership}</span>
+                            {yearWinner.location && <span className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-yellow-100"><MapPin size={16} className="text-red-500" /> Location: {yearWinner.location}</span>}
+                          </div>
+
+                          <div className="mt-8 flex gap-2 justify-center">
+                            <Star className="text-yellow-400" fill="currentColor" size={24} />
+                            <Star className="text-yellow-500" fill="currentColor" size={32} />
+                            <Star className="text-yellow-400" fill="currentColor" size={24} />
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="max-w-xl mx-auto bg-slate-100 rounded-3xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-12 text-slate-400">
+                        <Trophy size={64} className="mb-4 text-slate-300" />
+                        <p className="font-extrabold text-slate-500 text-xl">No record found</p>
+                        <p className="text-sm mt-2 text-center">No awards have been recorded for this session yet.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* =======================
+                VIEW 2: MASTER PROFILES
+                ======================= */}
+            {activeTab === 'profiles' && (
+              <div className="flex flex-col lg:flex-row gap-8">
+                <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.05)] border border-slate-100 h-fit">
+                  <h2 className="text-xl font-bold border-b pb-3 mb-5 text-slate-800 flex items-center gap-2">
+                    {editingProfileId ? (
+                      <><Edit size={20} className="text-yellow-600" /> Edit Profile</>
+                    ) : (
+                      <><PlusCircle size={20} className="text-blue-600" /> Add Master Profile</>
+                    )}
+                  </h2>
+
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-600 uppercase">Type</label>
+                      <select 
+                        value={profileForm.type}
+                        onChange={(e) => setProfileForm({...profileForm, type: e.target.value})}
+                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                      >
+                        {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-600 uppercase">Full Name</label>
+                      <input 
+                        type="text" 
+                        value={profileForm.name}
+                        onChange={(e) => setProfileForm({...profileForm, name: e.target.value})}
+                        placeholder="e.g. John Doe"
+                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-600 uppercase">Dealership</label>
+                      <input 
+                        type="text" 
+                        value={profileForm.dealership}
+                        onChange={(e) => setProfileForm({...profileForm, dealership: e.target.value})}
+                        placeholder="e.g. Metro Motors"
+                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-600 uppercase">Location</label>
+                      <input 
+                        type="text" 
+                        value={profileForm.location}
+                        onChange={(e) => setProfileForm({...profileForm, location: e.target.value})}
+                        placeholder="e.g. New Delhi"
+                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-600 uppercase">Photo Upload</label>
+                      <div 
+                        onClick={() => fileInputRef.current.click()}
+                        className="w-full h-24 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50 flex items-center justify-center cursor-pointer hover:bg-blue-100 transition-colors"
+                      >
+                        {profileForm.image && profileForm.image.length > 10 ? (
+                          <div className="flex items-center gap-3">
+                            <img src={profileForm.image} alt="Preview" className="h-16 w-16 object-cover rounded-md shadow" />
+                            <span className="text-sm text-blue-700 font-bold">Change Image</span>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center text-blue-600">
+                            <ImageIcon size={24} className="mb-1" />
+                            <span className="text-xs font-bold">Click to upload photo</span>
+                          </div>
+                        )}
+                        <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 mt-4">
+                      <button 
+                        onClick={handleSaveProfile}
+                        disabled={isSaving}
+                        className={`flex-1 font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 text-white ${editingProfileId ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+                      >
+                        {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                        {isSaving ? 'Uploading to Drive...' : (editingProfileId ? 'Update Record' : 'Save Record')}
+                      </button>
+                      {editingProfileId && (
+                        <button 
+                          onClick={cancelEdit}
+                          className="px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="w-full lg:w-2/3 bg-white p-6 rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.05)] border border-slate-100 overflow-hidden flex flex-col">
+                  <div className="flex justify-between items-center border-b pb-3 mb-4">
+                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                      <Users size={20} className="text-slate-600" /> Master Record Sheet
+                    </h2>
+                    <span className="text-xs font-bold bg-slate-100 px-3 py-1 rounded-full text-slate-600 border border-slate-200">
+                      Total Records: {profilesData.length}
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto flex-1">
+                    <table className="w-full text-sm text-left">
+                      <thead className="bg-slate-50 text-slate-500 uppercase font-black text-xs border-y">
+                        <tr>
+                          <th className="px-4 py-4">Photo</th>
+                          <th className="px-4 py-4">Name & Details</th>
+                          <th className="px-4 py-4">Type</th>
+                          <th className="px-4 py-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {profilesData.length === 0 ? (
+                          <tr>
+                            <td colSpan="4" className="text-center py-10 text-slate-400 font-medium">
+                              No master records available yet.
+                            </td>
+                          </tr>
+                        ) : (
+                          profilesData.map((item) => (
+                            <tr key={item.id} className="hover:bg-slate-50 transition-colors group">
+                              <td className="px-4 py-3">
+                                <img src={item.image} alt="User" className="w-12 h-12 rounded-full object-cover border-2 border-slate-200 shadow-sm" />
+                              </td>
+                              <td className="px-4 py-3">
+                                <p className="font-extrabold text-slate-800 text-base">{item.name}</p>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><Building size={10} /> {item.dealership}</span>
+                                  <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><MapPin size={10} /> {item.location}</span>
+                                </div>
+                                <p className="text-[10px] text-slate-400 mt-1 uppercase">ID: {item.id.slice(0, 8)}...</p>
+                              </td>
+                              <td className="px-4 py-3 font-black text-blue-700">
+                                {item.type}
+                              </td>
+                              <td className="px-4 py-3 text-right">
+                                <div className="flex items-center justify-end gap-2 opacity-100 lg:opacity-50 group-hover:opacity-100 transition-opacity">
+                                  <button 
+                                    onClick={() => handleEditClick(item)}
+                                    className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition-colors border border-transparent hover:border-blue-100"
+                                    title="Edit Profile"
+                                  >
+                                    <Edit size={18} />
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDeleteProfile(item.id)}
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                                    title="Delete Profile"
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =======================
+                VIEW 3: ASSIGN AWARDS
+                ======================= */}
+            {activeTab === 'assign' && (
+              <div className="flex flex-col lg:flex-row gap-8">
+                <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.05)] border border-slate-100 h-fit">
+                  <h2 className="text-xl font-bold border-b pb-3 mb-5 text-slate-800 flex items-center gap-2">
+                    <Award size={20} className="text-yellow-500" /> Assign Award to Wall
+                  </h2>
+
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-600 uppercase">Select Category</label>
+                      <select 
+                        value={assignForm.type}
+                        onChange={(e) => setAssignForm({...assignForm, type: e.target.value, profileId: ''})}
+                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-black text-blue-800 bg-slate-50"
+                      >
+                        {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-600 uppercase">Select Profile (From Master Data)</label>
+                      <select 
+                        value={assignForm.profileId}
+                        onChange={(e) => setAssignForm({...assignForm, profileId: e.target.value})}
+                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                      >
+                        <option value="">-- Select Awardee --</option>
+                        {profilesData.filter(p => p.type === assignForm.type).map(p => (
+                          <option key={p.id} value={p.id}>{p.name} ({p.dealership})</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-600 uppercase">Session</label>
+                        <select 
+                          value={assignForm.session}
+                          onChange={(e) => setAssignForm({...assignForm, session: e.target.value})}
+                          className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                        >
+                          {SESSIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-600 uppercase">Month</label>
+                        <select 
+                          value={assignForm.month}
+                          onChange={(e) => setAssignForm({...assignForm, month: e.target.value})}
+                          className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                        >
+                          {MONTHS.map(m => <option key={m} value={m}>{m} ({getMonthYearDisplay(assignForm.session, m)})</option>)}
+                        </select>
+                      </div>
+                    </div>
+
+                    <button 
+                      onClick={handleAssignAward}
+                      disabled={isSaving}
+                      className="w-full mt-4 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-yellow-950 font-black py-3 rounded-lg flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50"
+                    >
+                      {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Star size={20} fill="currentColor" />}
+                      {isSaving ? 'Assigning...' : 'Assign to Wall'}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="w-full lg:w-2/3 bg-white p-6 rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.05)] border border-slate-100 overflow-hidden flex flex-col">
+                  <h2 className="text-xl font-bold border-b pb-3 mb-4 text-slate-800 flex items-center gap-2">
+                    <LayoutGrid size={20} className="text-slate-600" /> Assigned Awards History
+                  </h2>
+
+                  <div className="overflow-x-auto flex-1">
+                    <table className="w-full text-sm text-left">
+                      <thead className="bg-slate-50 text-slate-500 uppercase font-black text-xs border-y">
+                        <tr>
+                          <th className="px-4 py-4">Awardee</th>
+                          <th className="px-4 py-4">Type</th>
+                          <th className="px-4 py-4">Session & Month</th>
+                          <th className="px-4 py-4 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {awardsData.length === 0 ? (
+                          <tr>
+                            <td colSpan="4" className="text-center py-10 text-slate-400 font-medium">
+                              No awards have been assigned yet.
+                            </td>
+                          </tr>
+                        ) : (
+                          awardsData.map((item) => {
+                            const liveProfile = profilesData.find(p => p.id === item.profileId);
+                            const displayImage = liveProfile ? liveProfile.image : item.image;
+                            const displayName = liveProfile ? liveProfile.name : item.name;
+                            const displayDealership = liveProfile ? liveProfile.dealership : item.dealership;
+
+                            return (
+                              <tr key={item.id} className="hover:bg-slate-50 transition-colors group">
+                                <td className="px-4 py-3 flex items-center gap-3">
+                                  <img src={displayImage} alt="User" className="w-10 h-10 rounded-full object-cover border shadow-sm" />
+                                  <div>
+                                    <p className="font-extrabold text-slate-800">{displayName}</p>
+                                    <p className="text-[11px] font-bold text-slate-500">{displayDealership}</p>
+                                  </div>
+                                </td>
+                                <td className="px-4 py-3 font-black text-blue-700">
+                                  {item.type}
+                                </td>
+                                <td className="px-4 py-3">
+                                  <span className="bg-slate-100 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-xs font-black">
+                                    {item.month} ({item.session})
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-right">
+                                  <button 
+                                    onClick={() => handleDeleteAward(item.id)}
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100 opacity-100 lg:opacity-50 group-hover:opacity-100"
+                                    title="Remove from Wall"
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                </td>
+                              </tr>
+                            )
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    // --- 4. Render App to DOM ---
+    const rootElement = document.getElementById('root');
+    const root = createRoot(rootElement);
+    root.render(<App />);
+  </script>
+</body>
+</html>
