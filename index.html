@@ -387,30 +387,30 @@
           
           {/* Top Main Navigation */}
           <header className="bg-blue-900 text-white shadow-md sticky top-0 z-40">
-            <div className="max-w-[90rem] mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="max-w-[90rem] mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="flex items-center gap-3">
-                <Trophy size={32} className="text-yellow-400" />
-                <h1 className="text-2xl font-bold tracking-wide">Star Performers Platform</h1>
+                <Trophy size={28} className="text-yellow-400" />
+                <h1 className="text-xl font-bold tracking-wide">Star Performers Platform</h1>
               </div>
               
               <div className="flex bg-blue-800 p-1 rounded-lg">
                 <button
                   onClick={() => setActiveTab('wall')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md font-medium transition-all text-sm ${activeTab === 'wall' ? 'bg-white text-blue-900 shadow' : 'text-blue-100 hover:text-white'}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium transition-all text-sm ${activeTab === 'wall' ? 'bg-white text-blue-900 shadow' : 'text-blue-100 hover:text-white'}`}
                 >
                   <LayoutGrid size={16} />
                   Wall of Fame
                 </button>
                 <button
                   onClick={() => setActiveTab('profiles')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md font-medium transition-all text-sm ${activeTab === 'profiles' ? 'bg-white text-blue-900 shadow' : 'text-blue-100 hover:text-white'}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium transition-all text-sm ${activeTab === 'profiles' ? 'bg-white text-blue-900 shadow' : 'text-blue-100 hover:text-white'}`}
                 >
                   <Users size={16} />
                   Master Data
                 </button>
                 <button
                   onClick={() => setActiveTab('assign')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-md font-medium transition-all text-sm ${activeTab === 'assign' ? 'bg-white text-blue-900 shadow' : 'text-blue-100 hover:text-white'}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-md font-medium transition-all text-sm ${activeTab === 'assign' ? 'bg-white text-blue-900 shadow' : 'text-blue-100 hover:text-white'}`}
                 >
                   <UserCheck size={16} />
                   Assign Awards
@@ -419,27 +419,27 @@
             </div>
           </header>
 
-          <main className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <main className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-6">
             
             {/* =======================
                 VIEW 1: WALL OF FAME
                 ======================= */}
             {activeTab === 'wall' && (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 
                 {/* Filters Navigation Panel */}
-                <div className="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200/80 flex flex-col gap-4 w-fit mx-auto transition-all duration-300 relative z-30">
+                <div className="bg-white/90 backdrop-blur-md p-2.5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col gap-3 w-fit mx-auto transition-all duration-300 relative z-30">
                   
-                  <div className="flex flex-wrap justify-center items-center gap-4">
+                  <div className="flex flex-wrap justify-center items-center gap-3">
                     {/* Type Tabs */}
-                    <div className="flex gap-1.5 bg-slate-100/80 p-1.5 rounded-xl shadow-inner border border-slate-200/50 overflow-x-auto">
+                    <div className="flex gap-1 bg-slate-100/80 p-1 rounded-xl shadow-inner border border-slate-200/50 overflow-x-auto">
                       {TYPES.map(type => (
                         <button
                           key={type}
                           onClick={() => setSelectedType(type)}
-                          className={`px-5 py-2 rounded-lg font-bold text-sm transition-all whitespace-nowrap flex items-center gap-1.5 ${selectedType === type ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-200 hover:text-slate-800'}`}
+                          className={`px-4 py-1.5 rounded-lg font-bold text-xs transition-all whitespace-nowrap flex items-center gap-1.5 ${selectedType === type ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200 hover:text-slate-800'}`}
                         >
-                          {type === 'Shine 100 Star Performer' && <Star size={14} className={selectedType === type ? "text-yellow-400" : ""} fill={selectedType === type ? "currentColor" : "none"}/>}
+                          {type === 'Shine 100 Star Performer' && <Star size={12} className={selectedType === type ? "text-yellow-400" : ""} fill={selectedType === type ? "currentColor" : "none"}/>}
                           {type} {type !== 'Shine 100 Star Performer' ? 'of the Month' : ''}
                         </button>
                       ))}
@@ -448,52 +448,52 @@
                     {/* Settings Toggle Button */}
                     <button
                       onClick={() => setShowAdvancedSettings(!showAdvancedSettings)}
-                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all font-bold text-sm whitespace-nowrap shadow-sm ${showAdvancedSettings ? 'bg-slate-800 text-white border-slate-800' : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300'}`}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all font-bold text-xs whitespace-nowrap shadow-sm ${showAdvancedSettings ? 'bg-slate-800 text-white border-slate-800' : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-200 hover:border-slate-300'}`}
                     >
-                      <Settings2 size={16} />
+                      <Settings2 size={14} />
                       Settings
-                      {showAdvancedSettings ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                      {showAdvancedSettings ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                     </button>
 
                     {/* EXPORT WHATSAPP BUTTON */}
                     <button
                       onClick={exportWallImage}
                       disabled={isExporting}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all font-bold text-sm whitespace-nowrap shadow-sm bg-green-600 hover:bg-green-700 text-white border-green-700 disabled:opacity-70 disabled:cursor-not-allowed"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all font-bold text-xs whitespace-nowrap shadow-sm bg-green-600 hover:bg-green-700 text-white border-green-700 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                      {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                      {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
                       {isExporting ? 'Preparing...' : 'Export for WhatsApp'}
                     </button>
                   </div>
 
                   {/* Expandable Session Selector & Toggles */}
                   {showAdvancedSettings && (
-                    <div className="flex items-center gap-4 flex-wrap justify-center pt-4 border-t border-slate-200/80 animate-fade-in">
-                      <div className="flex items-center gap-2 bg-yellow-50/80 px-4 py-2 rounded-xl border border-yellow-200 cursor-pointer hover:bg-yellow-100 transition-colors shadow-sm" onClick={() => setShowYearWinner(!showYearWinner)}>
-                        <input type="checkbox" checked={showYearWinner} onChange={() => {}} className="w-4 h-4 text-yellow-600 rounded border-gray-300 focus:ring-yellow-500 cursor-pointer" />
-                        <label className="text-sm font-bold text-yellow-800 cursor-pointer flex items-center gap-1.5">
-                          <Crown size={16} /> Show "{selectedType} of the Year"
+                    <div className="flex items-center gap-3 flex-wrap justify-center pt-3 border-t border-slate-200/80 animate-fade-in">
+                      <div className="flex items-center gap-2 bg-yellow-50/80 px-3 py-1.5 rounded-xl border border-yellow-200 cursor-pointer hover:bg-yellow-100 transition-colors shadow-sm" onClick={() => setShowYearWinner(!showYearWinner)}>
+                        <input type="checkbox" checked={showYearWinner} onChange={() => {}} className="w-3.5 h-3.5 text-yellow-600 rounded border-gray-300 focus:ring-yellow-500 cursor-pointer" />
+                        <label className="text-xs font-bold text-yellow-800 cursor-pointer flex items-center gap-1">
+                          <Crown size={14} /> Show "{selectedType} of the Year"
                         </label>
                       </div>
 
-                      <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider pl-2">Session:</span>
+                      <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-xl border border-slate-200 shadow-sm">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">Session:</span>
                         <select 
                           value={selectedSession}
                           onChange={(e) => setSelectedSession(e.target.value)}
-                          className="p-1.5 bg-transparent font-bold text-blue-900 focus:ring-0 outline-none text-sm cursor-pointer"
+                          className="p-1 bg-transparent font-bold text-blue-900 focus:ring-0 outline-none text-xs cursor-pointer"
                         >
                           {SESSIONS.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                       </div>
 
                       {/* Theme Selector */}
-                      <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-                        <Palette size={16} className="text-slate-400 ml-1" />
+                      <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-xl border border-slate-200 shadow-sm">
+                        <Palette size={14} className="text-slate-400 ml-1" />
                         <select 
                           value={selectedTheme}
                           onChange={(e) => setSelectedTheme(e.target.value)}
-                          className="p-1.5 bg-transparent font-bold text-slate-700 focus:ring-0 outline-none text-sm cursor-pointer"
+                          className="p-1 bg-transparent font-bold text-slate-700 focus:ring-0 outline-none text-xs cursor-pointer"
                           title="Card Theme"
                         >
                           {Object.entries(THEMES).map(([key, val]) => (
@@ -503,12 +503,12 @@
                       </div>
 
                       {/* Grid Layout Selector */}
-                      <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-                        <LayoutGrid size={16} className="text-slate-400 ml-1" />
+                      <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-xl border border-slate-200 shadow-sm">
+                        <LayoutGrid size={14} className="text-slate-400 ml-1" />
                         <select 
                           value={gridLayout}
                           onChange={(e) => setGridLayout(e.target.value)}
-                          className="p-1.5 bg-transparent font-bold text-slate-700 focus:ring-0 outline-none text-sm cursor-pointer"
+                          className="p-1 bg-transparent font-bold text-slate-700 focus:ring-0 outline-none text-xs cursor-pointer"
                           title="Grid Layout Settings"
                         >
                           <option value="2">2 Cards / Row</option>
@@ -519,15 +519,15 @@
                       </div>
 
                       {/* NEW ZOOM SLIDER */}
-                      <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider pl-1">Zoom:</span>
+                      <div className="flex items-center gap-2 bg-white px-3 py-1 rounded-xl border border-slate-200 shadow-sm">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">Zoom:</span>
                         <input 
                           type="range" 
                           min="50" 
                           max="150" 
                           value={zoomLevel} 
                           onChange={(e) => setZoomLevel(Number(e.target.value))} 
-                          className="w-24 accent-blue-600 cursor-pointer"
+                          className="w-20 accent-blue-600 cursor-pointer"
                         />
                         <span className="text-xs font-bold text-slate-700 w-8 text-right">{zoomLevel}%</span>
                       </div>
@@ -537,22 +537,22 @@
 
                 {/* === EXPORT AREA START === */}
                 {/* CSS Zoom is applied here dynamically */}
-                <div id="wall-export-area" className="bg-slate-50 pt-1 pb-8 px-4" style={{ zoom: `${zoomLevel}%` }}>
+                <div id="wall-export-area" className="bg-slate-50 pt-2 pb-4 px-2" style={{ zoom: `${zoomLevel}%` }}>
                   
-                  {/* Title - Reduced Top Margin/Padding to minimize empty space */}
-                  <div className="text-center pb-2 mb-2">
-                    <h2 className="text-3xl font-extrabold text-slate-800 uppercase tracking-wide">
+                  {/* Title - Reduced Top Margin/Padding to exactly 0 to minimize empty space */}
+                  <div className="text-center pb-0 mb-1">
+                    <h2 className="text-2xl font-extrabold text-slate-800 uppercase tracking-wide">
                       {selectedType} {selectedType !== 'Shine 100 Star Performer' ? 'of the Month' : ''}
                     </h2>
                     <div className="flex items-center justify-center gap-2 mt-1">
-                      <div className="h-0.5 w-12 bg-yellow-400"></div>
-                      <p className="text-slate-500 font-bold text-lg">Session {selectedSession}</p>
-                      <div className="h-0.5 w-12 bg-yellow-400"></div>
+                      <div className="h-[1px] w-10 bg-yellow-400"></div>
+                      <p className="text-slate-500 font-bold text-sm">Session {selectedSession}</p>
+                      <div className="h-[1px] w-10 bg-yellow-400"></div>
                     </div>
                   </div>
 
-                  {/* 12 Months Grid - Greatly reduced gap-y and padding to fit on one screen */}
-                  <div className={`grid gap-x-4 gap-y-14 pb-6 mt-0 ${
+                  {/* 12 Months Grid - Highly compact gaps (gap-y-6) and compact margin tops */}
+                  <div className={`grid gap-x-3 gap-y-6 pb-2 mt-2 ${
                     gridLayout === '2' ? 'grid-cols-1 sm:grid-cols-2' :
                     gridLayout === '3' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
                     gridLayout === '6' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6' :
@@ -574,72 +574,72 @@
                         return (
                           <div 
                             key={month} 
-                            className={`bg-white rounded-2xl shadow-xl border ${currentTheme.border} hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group relative mt-12 flex flex-col z-10`}
+                            className={`bg-white rounded-xl shadow-md border ${currentTheme.border} hover:shadow-lg transition-all duration-300 group relative mt-10 flex flex-col z-10`}
                           >
                             {/* Golden Star Badge */}
-                            <div className="absolute -top-4 -right-4 z-40">
+                            <div className="absolute -top-3 -right-3 z-40">
                               <div className="relative flex items-center justify-center">
-                                <Star size={48} className="text-yellow-400 drop-shadow-md" fill="currentColor" />
-                                <Award size={20} className={`absolute ${currentTheme.text}`} />
+                                <Star size={36} className="text-yellow-400 drop-shadow-md" fill="currentColor" />
+                                <Award size={16} className={`absolute ${currentTheme.text}`} />
                               </div>
                             </div>
 
-                            {/* Dynamic Header Fixed Size */}
-                            <div className={`h-24 bg-gradient-to-br ${currentTheme.header} relative rounded-t-2xl flex justify-center overflow-hidden transition-all duration-300`}>
-                              <div className="absolute top-[-50%] left-[-20%] w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-                              <div className={`absolute top-3 left-3 bg-white/20 backdrop-blur-sm ${selectedTheme === 'gold' ? 'text-yellow-900' : 'text-white'} text-xs font-bold px-3 py-1 rounded shadow-inner uppercase tracking-wider z-10`}>
+                            {/* Dynamic Header Fixed Size - Compact Height */}
+                            <div className={`h-16 bg-gradient-to-br ${currentTheme.header} relative rounded-t-xl flex justify-center overflow-hidden transition-all duration-300`}>
+                              <div className="absolute top-[-50%] left-[-20%] w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
+                              <div className={`absolute top-2 left-2 bg-white/20 backdrop-blur-sm ${selectedTheme === 'gold' ? 'text-yellow-900' : 'text-white'} text-[10px] font-bold px-2 py-0.5 rounded shadow-inner uppercase tracking-wider z-10`}>
                                 {displayMonthYear}
                               </div>
                             </div>
                             
-                            <div className={`flex flex-col items-center relative bg-white flex-grow rounded-b-2xl px-3 pb-3 transition-all duration-300`}>
-                              {/* Profile Picture Fixed Size */}
-                              <div className={`absolute -top-14 left-1/2 transform -translate-x-1/2 flex flex-col items-center z-20 transition-all duration-300`}>
-                                <div className={`w-28 h-28 rounded-full border-[5px] border-white shadow-[0_8px_20px_rgb(0,0,0,0.15)] ring-2 ring-slate-200/50 bg-white flex items-center justify-center overflow-hidden z-20 relative transition-all duration-300`}>
+                            <div className={`flex flex-col items-center relative bg-white flex-grow rounded-b-xl px-2 pb-2 transition-all duration-300`}>
+                              {/* Profile Picture Fixed Size - Compact Size & Positioning */}
+                              <div className={`absolute -top-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center z-20 transition-all duration-300`}>
+                                <div className={`w-20 h-20 rounded-full border-4 border-white shadow-[0_4px_10px_rgb(0,0,0,0.15)] ring-1 ring-slate-200/50 bg-white flex items-center justify-center overflow-hidden z-20 relative transition-all duration-300`}>
                                   <img src={entry.image} alt={entry.name} className="w-full h-full object-cover" />
                                 </div>
                               </div>
                               
-                              {/* Text formatting below the picture - Added pb-4 and leading-relaxed to prevent cutoff */}
-                              <div className={`mt-16 text-center w-full transition-all duration-300 flex flex-col items-center flex-grow justify-between pb-4`}>
+                              {/* Text formatting below the picture - Minimal Margins */}
+                              <div className={`mt-12 text-center w-full transition-all duration-300 flex flex-col items-center flex-grow justify-between pb-2`}>
                                 <div className="w-full">
-                                  <h3 className={`text-xl font-black text-slate-800 uppercase px-2 w-full break-words leading-relaxed pb-1`}>
+                                  <h3 className={`text-base font-black text-slate-800 uppercase px-1 w-full break-words leading-normal pb-0`}>
                                     {entry.name}
                                   </h3>
                                   
-                                  <div className={`flex flex-col items-center gap-2 text-slate-500 font-semibold text-sm transition-all duration-300 mt-1 w-full px-2`}>
-                                    {/* Changed to div and added py-2 for better vertical alignment in export */}
-                                    <div className="flex items-center justify-center gap-2 bg-slate-50 px-3 py-2 rounded-full w-full border border-slate-100 break-words leading-normal">
-                                      <Building size={14} className="text-blue-600 flex-shrink-0" /> 
-                                      <span className="pt-0.5">{entry.dealership}</span>
+                                  <div className={`flex flex-col items-center gap-1 text-slate-500 font-semibold text-xs transition-all duration-300 mt-1 w-full px-1`}>
+                                    {/* Changed to div and added py-1 for compact vertical alignment in export */}
+                                    <div className="flex items-center justify-center gap-1.5 bg-slate-50 px-2 py-1 rounded-full w-full border border-slate-100 break-words leading-normal">
+                                      <Building size={12} className="text-blue-600 flex-shrink-0" /> 
+                                      <span>{entry.dealership}</span>
                                     </div>
                                     {entry.location && 
-                                      <div className="flex items-center justify-center gap-2 bg-slate-50 px-3 py-2 rounded-full w-full border border-slate-100 break-words leading-normal">
-                                        <MapPin size={14} className="text-red-500 flex-shrink-0" /> 
-                                        <span className="pt-0.5">{entry.location}</span>
+                                      <div className="flex items-center justify-center gap-1.5 bg-slate-50 px-2 py-1 rounded-full w-full border border-slate-100 break-words leading-normal">
+                                        <MapPin size={12} className="text-red-500 flex-shrink-0" /> 
+                                        <span>{entry.location}</span>
                                       </div>
                                     }
                                   </div>
                                 </div>
 
-                                {/* Dynamic 3 Stars */}
-                                <div className="mt-4 flex gap-1 justify-center items-center">
-                                  <Star className="text-yellow-400 drop-shadow-sm" fill="currentColor" size={16} />
-                                  <Star className="text-yellow-500 drop-shadow-md" fill="currentColor" size={24} />
-                                  <Star className="text-yellow-400 drop-shadow-sm" fill="currentColor" size={16} />
+                                {/* Dynamic 3 Stars - Compact */}
+                                <div className="mt-2 flex gap-1 justify-center items-center">
+                                  <Star className="text-yellow-400 drop-shadow-sm" fill="currentColor" size={14} />
+                                  <Star className="text-yellow-500 drop-shadow-md" fill="currentColor" size={20} />
+                                  <Star className="text-yellow-400 drop-shadow-sm" fill="currentColor" size={14} />
                                 </div>
                               </div>
                             </div>
 
-                            <div className={`absolute bottom-0 left-0 h-1.5 w-full bg-gradient-to-r ${currentTheme.header} rounded-b-2xl opacity-80`}></div>
+                            <div className={`absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r ${currentTheme.header} rounded-b-xl opacity-80`}></div>
                           </div>
                         );
                       } else {
                         return (
-                          <div key={month} className={`bg-white rounded-2xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-6 h-56 text-slate-400 mt-12 shadow-sm transition-all duration-300 z-10`}>
-                            <Calendar size={32} className="mb-2 text-slate-300" />
-                            <p className="font-extrabold text-slate-500 text-base">{displayMonthYear}</p>
-                            <p className="text-[10px] mt-1 font-medium bg-slate-100 px-2 py-0.5 rounded text-slate-500">Awaiting Entry</p>
+                          <div key={month} className={`bg-white rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-4 h-40 text-slate-400 mt-10 shadow-sm transition-all duration-300 z-10`}>
+                            <Calendar size={24} className="mb-2 text-slate-300" />
+                            <p className="font-extrabold text-slate-500 text-sm">{displayMonthYear}</p>
+                            <p className="text-[9px] mt-1 font-medium bg-slate-100 px-2 py-0.5 rounded text-slate-500">Awaiting Entry</p>
                           </div>
                         );
                       }
@@ -648,63 +648,63 @@
 
                   {/* GRAND CARD - Tighter spacing above it */}
                   {showYearWinner && (
-                    <div className="mt-6 pt-10 border-t-[3px] border-dashed border-slate-300 pb-4 animate-fade-in relative z-20">
-                      <div className="text-center mb-10">
-                        <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 uppercase tracking-widest drop-shadow-sm flex justify-center items-center gap-3 leading-relaxed">
-                          <Crown size={32} className="text-yellow-500" fill="currentColor" />
+                    <div className="mt-4 pt-6 border-t-2 border-dashed border-slate-300 pb-2 animate-fade-in relative z-20">
+                      <div className="text-center mb-8">
+                        <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 uppercase tracking-widest drop-shadow-sm flex justify-center items-center gap-2 leading-relaxed">
+                          <Crown size={24} className="text-yellow-500" fill="currentColor" />
                           {selectedType} of the Year
-                          <Crown size={32} className="text-yellow-500" fill="currentColor" />
+                          <Crown size={24} className="text-yellow-500" fill="currentColor" />
                         </h2>
-                        <p className="text-slate-600 font-bold mt-1 text-sm uppercase tracking-widest">Highest Achiever ({selectedSession})</p>
+                        <p className="text-slate-600 font-bold mt-0.5 text-xs uppercase tracking-widest">Highest Achiever ({selectedSession})</p>
                       </div>
 
                       {yearWinner ? (
                         <div 
-                          className="max-w-xl mx-auto bg-gradient-to-b from-yellow-100 via-white to-yellow-50 rounded-3xl shadow-[0_20px_50px_rgb(234,179,8,0.3)] border-2 border-yellow-300 overflow-hidden relative"
+                          className="max-w-md mx-auto bg-gradient-to-b from-yellow-100 via-white to-yellow-50 rounded-2xl shadow-lg border-2 border-yellow-300 overflow-hidden relative"
                         >
-                          <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-300/30 rounded-full blur-3xl"></div>
-                          <div className="absolute bottom-0 left-0 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl"></div>
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-300/30 rounded-full blur-2xl"></div>
+                          <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-400/20 rounded-full blur-2xl"></div>
 
-                          <div className="h-28 bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 flex justify-center items-center relative overflow-hidden">
-                             <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
-                             <div className="absolute top-3 bg-white/80 backdrop-blur text-yellow-800 text-xs font-black px-4 py-1.5 rounded-full shadow-md border border-yellow-200 uppercase tracking-widest">
+                          <div className="h-20 bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 flex justify-center items-center relative overflow-hidden">
+                             <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '16px 16px'}}></div>
+                             <div className="absolute top-2 bg-white/80 backdrop-blur text-yellow-800 text-[10px] font-black px-3 py-1 rounded-full shadow-sm border border-yellow-200 uppercase tracking-widest">
                                {yearWinner.winCount} Times Winner
                              </div>
                           </div>
 
-                          <div className="flex flex-col items-center px-6 pb-8 relative z-10 pt-20">
-                            <div className="absolute -top-16 w-32 h-32 rounded-full border-[6px] border-white shadow-2xl bg-yellow-50 overflow-hidden p-1 ring-4 ring-yellow-400/30">
+                          <div className="flex flex-col items-center px-4 pb-6 relative z-10 pt-14">
+                            <div className="absolute -top-12 w-24 h-24 rounded-full border-4 border-white shadow-xl bg-yellow-50 overflow-hidden p-1 ring-2 ring-yellow-400/30">
                               <img src={yearWinner.image} alt={yearWinner.name} className="w-full h-full object-cover rounded-full" />
                             </div>
                             
-                            <h3 className="text-2xl font-black text-slate-900 text-center mt-2 uppercase tracking-tight leading-relaxed pb-1">{yearWinner.name}</h3>
-                            <div className="w-12 h-1 bg-gradient-to-r from-yellow-300 to-yellow-500 my-3 rounded-full"></div>
+                            <h3 className="text-xl font-black text-slate-900 text-center mt-1 uppercase tracking-tight leading-relaxed pb-0">{yearWinner.name}</h3>
+                            <div className="w-10 h-1 bg-gradient-to-r from-yellow-300 to-yellow-500 my-2 rounded-full"></div>
                             
-                            <div className="flex flex-col items-center gap-2 text-slate-700 font-bold text-sm w-full max-w-[280px]">
-                              <div className="flex items-center justify-center gap-2 bg-white px-3 py-2 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
-                                <Building size={14} className="text-blue-600" /> 
-                                <span className="pt-0.5">Dealership: {yearWinner.dealership}</span>
+                            <div className="flex flex-col items-center gap-1.5 text-slate-700 font-bold text-xs w-full max-w-[240px]">
+                              <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
+                                <Building size={12} className="text-blue-600" /> 
+                                <span>Dealership: {yearWinner.dealership}</span>
                               </div>
                               {yearWinner.location && 
-                                <div className="flex items-center justify-center gap-2 bg-white px-3 py-2 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
-                                  <MapPin size={14} className="text-red-500" /> 
-                                  <span className="pt-0.5">Location: {yearWinner.location}</span>
+                                <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
+                                  <MapPin size={12} className="text-red-500" /> 
+                                  <span>Location: {yearWinner.location}</span>
                                 </div>
                               }
                             </div>
 
-                            <div className="mt-6 flex gap-2 justify-center">
-                              <Star className="text-yellow-400" fill="currentColor" size={20} />
-                              <Star className="text-yellow-500" fill="currentColor" size={28} />
-                              <Star className="text-yellow-400" fill="currentColor" size={20} />
+                            <div className="mt-4 flex gap-1.5 justify-center">
+                              <Star className="text-yellow-400" fill="currentColor" size={16} />
+                              <Star className="text-yellow-500" fill="currentColor" size={24} />
+                              <Star className="text-yellow-400" fill="currentColor" size={16} />
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <div className="max-w-xl mx-auto bg-slate-100 rounded-3xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-8 text-slate-400">
-                          <Trophy size={48} className="mb-3 text-slate-300" />
-                          <p className="font-extrabold text-slate-500 text-lg">No record found</p>
-                          <p className="text-xs mt-1 text-center">No awards have been recorded for this session yet.</p>
+                        <div className="max-w-md mx-auto bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-6 text-slate-400">
+                          <Trophy size={36} className="mb-2 text-slate-300" />
+                          <p className="font-extrabold text-slate-500 text-base">No record found</p>
+                          <p className="text-[10px] mt-1 text-center">No awards have been recorded for this session yet.</p>
                         </div>
                       )}
                     </div>
@@ -718,23 +718,23 @@
                 VIEW 2: MASTER PROFILES
                 ======================= */}
             {activeTab === 'profiles' && (
-              <div className="flex flex-col lg:flex-row gap-8">
-                <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.05)] border border-slate-100 h-fit">
-                  <h2 className="text-xl font-bold border-b pb-3 mb-5 text-slate-800 flex items-center gap-2">
+              <div className="flex flex-col lg:flex-row gap-6">
+                <div className="w-full lg:w-1/3 bg-white p-5 rounded-xl shadow-sm border border-slate-100 h-fit">
+                  <h2 className="text-lg font-bold border-b pb-2 mb-4 text-slate-800 flex items-center gap-2">
                     {editingProfileId ? (
-                      <><Edit size={20} className="text-yellow-600" /> Edit Profile</>
+                      <><Edit size={18} className="text-yellow-600" /> Edit Profile</>
                     ) : (
-                      <><PlusCircle size={20} className="text-blue-600" /> Add Master Profile</>
+                      <><PlusCircle size={18} className="text-blue-600" /> Add Master Profile</>
                     )}
                   </h2>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-600 uppercase">Type</label>
                       <select 
                         value={profileForm.type}
                         onChange={(e) => setProfileForm({...profileForm, type: e.target.value})}
-                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                        className="w-full p-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
                       >
                         {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                       </select>
@@ -747,7 +747,7 @@
                         value={profileForm.name}
                         onChange={(e) => setProfileForm({...profileForm, name: e.target.value})}
                         placeholder="e.g. John Doe"
-                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                        className="w-full p-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
                       />
                     </div>
 
@@ -758,7 +758,7 @@
                         value={profileForm.dealership}
                         onChange={(e) => setProfileForm({...profileForm, dealership: e.target.value})}
                         placeholder="e.g. Metro Motors"
-                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                        className="w-full p-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
                       />
                     </div>
 
@@ -769,7 +769,7 @@
                         value={profileForm.location}
                         onChange={(e) => setProfileForm({...profileForm, location: e.target.value})}
                         placeholder="e.g. New Delhi"
-                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                        className="w-full p-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
                       />
                     </div>
 
@@ -777,36 +777,36 @@
                       <label className="text-xs font-bold text-slate-600 uppercase">Photo Upload</label>
                       <div 
                         onClick={() => fileInputRef.current.click()}
-                        className="w-full h-24 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50 flex items-center justify-center cursor-pointer hover:bg-blue-100 transition-colors"
+                        className="w-full h-20 border-2 border-dashed border-blue-300 rounded-lg bg-blue-50 flex items-center justify-center cursor-pointer hover:bg-blue-100 transition-colors"
                       >
                         {profileForm.image && profileForm.image.length > 10 ? (
                           <div className="flex items-center gap-3">
-                            <img src={profileForm.image} alt="Preview" className="h-16 w-16 object-cover rounded-md shadow" />
-                            <span className="text-sm text-blue-700 font-bold">Change Image</span>
+                            <img src={profileForm.image} alt="Preview" className="h-12 w-12 object-cover rounded-md shadow" />
+                            <span className="text-xs text-blue-700 font-bold">Change Image</span>
                           </div>
                         ) : (
                           <div className="flex flex-col items-center text-blue-600">
-                            <ImageIcon size={24} className="mb-1" />
-                            <span className="text-xs font-bold">Click to upload photo</span>
+                            <ImageIcon size={20} className="mb-1" />
+                            <span className="text-[10px] font-bold">Click to upload photo</span>
                           </div>
                         )}
                         <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
                       </div>
                     </div>
 
-                    <div className="flex gap-2 mt-4">
+                    <div className="flex gap-2 mt-3">
                       <button 
                         onClick={handleSaveProfile}
                         disabled={isSaving}
-                        className={`flex-1 font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 text-white ${editingProfileId ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-blue-600 hover:bg-blue-700'}`}
+                        className={`flex-1 font-bold py-2.5 text-sm rounded-lg flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 text-white ${editingProfileId ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-blue-600 hover:bg-blue-700'}`}
                       >
-                        {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                        {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
                         {isSaving ? 'Uploading to Drive...' : (editingProfileId ? 'Update Record' : 'Save Record')}
                       </button>
                       {editingProfileId && (
                         <button 
                           onClick={cancelEdit}
-                          className="px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition-colors"
+                          className="px-3 text-sm bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-lg transition-colors"
                         >
                           Cancel
                         </button>
@@ -815,65 +815,65 @@
                   </div>
                 </div>
 
-                <div className="w-full lg:w-2/3 bg-white p-6 rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.05)] border border-slate-100 overflow-hidden flex flex-col">
-                  <div className="flex justify-between items-center border-b pb-3 mb-4">
-                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                      <Users size={20} className="text-slate-600" /> Master Record Sheet
+                <div className="w-full lg:w-2/3 bg-white p-5 rounded-xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+                  <div className="flex justify-between items-center border-b pb-2 mb-3">
+                    <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                      <Users size={18} className="text-slate-600" /> Master Record Sheet
                     </h2>
-                    <span className="text-xs font-bold bg-slate-100 px-3 py-1 rounded-full text-slate-600 border border-slate-200">
+                    <span className="text-[10px] font-bold bg-slate-100 px-2 py-0.5 rounded-full text-slate-600 border border-slate-200">
                       Total Records: {profilesData.length}
                     </span>
                   </div>
 
                   <div className="overflow-x-auto flex-1">
                     <table className="w-full text-sm text-left">
-                      <thead className="bg-slate-50 text-slate-500 uppercase font-black text-xs border-y">
+                      <thead className="bg-slate-50 text-slate-500 uppercase font-black text-[10px] border-y">
                         <tr>
-                          <th className="px-4 py-4">Photo</th>
-                          <th className="px-4 py-4">Name & Details</th>
-                          <th className="px-4 py-4">Type</th>
-                          <th className="px-4 py-4 text-right">Actions</th>
+                          <th className="px-3 py-3">Photo</th>
+                          <th className="px-3 py-3">Name & Details</th>
+                          <th className="px-3 py-3">Type</th>
+                          <th className="px-3 py-3 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {profilesData.length === 0 ? (
                           <tr>
-                            <td colSpan="4" className="text-center py-10 text-slate-400 font-medium">
+                            <td colSpan="4" className="text-center py-8 text-slate-400 font-medium text-xs">
                               No master records available yet.
                             </td>
                           </tr>
                         ) : (
                           profilesData.map((item) => (
                             <tr key={item.id} className="hover:bg-slate-50 transition-colors group">
-                              <td className="px-4 py-3">
-                                <img src={item.image} alt="User" className="w-12 h-12 rounded-full object-cover border-2 border-slate-200 shadow-sm" />
+                              <td className="px-3 py-2">
+                                <img src={item.image} alt="User" className="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-sm" />
                               </td>
-                              <td className="px-4 py-3">
-                                <p className="font-extrabold text-slate-800 text-base">{item.name}</p>
-                                <div className="flex flex-wrap gap-2 mt-1">
-                                  <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><Building size={10} /> {item.dealership}</span>
-                                  <span className="text-xs font-bold text-slate-500 flex items-center gap-1"><MapPin size={10} /> {item.location}</span>
+                              <td className="px-3 py-2">
+                                <p className="font-extrabold text-slate-800 text-sm">{item.name}</p>
+                                <div className="flex flex-wrap gap-1.5 mt-0.5">
+                                  <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1"><Building size={10} /> {item.dealership}</span>
+                                  <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1"><MapPin size={10} /> {item.location}</span>
                                 </div>
-                                <p className="text-[10px] text-slate-400 mt-1 uppercase">ID: {item.id.slice(0, 8)}...</p>
+                                <p className="text-[9px] text-slate-400 mt-0.5 uppercase">ID: {item.id.slice(0, 8)}...</p>
                               </td>
-                              <td className="px-4 py-3 font-black text-blue-700">
+                              <td className="px-3 py-2 font-black text-blue-700 text-xs">
                                 {item.type}
                               </td>
-                              <td className="px-4 py-3 text-right">
-                                <div className="flex items-center justify-end gap-2 opacity-100 lg:opacity-50 group-hover:opacity-100 transition-opacity">
+                              <td className="px-3 py-2 text-right">
+                                <div className="flex items-center justify-end gap-1.5 opacity-100 lg:opacity-50 group-hover:opacity-100 transition-opacity">
                                   <button 
                                     onClick={() => handleEditClick(item)}
-                                    className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-2 rounded-lg transition-colors border border-transparent hover:border-blue-100"
+                                    className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-1.5 rounded-md transition-colors border border-transparent hover:border-blue-100"
                                     title="Edit Profile"
                                   >
-                                    <Edit size={18} />
+                                    <Edit size={16} />
                                   </button>
                                   <button 
                                     onClick={() => handleDeleteProfile(item.id)}
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-md transition-colors border border-transparent hover:border-red-100"
                                     title="Delete Profile"
                                   >
-                                    <Trash2 size={18} />
+                                    <Trash2 size={16} />
                                   </button>
                                 </div>
                               </td>
@@ -891,19 +891,19 @@
                 VIEW 3: ASSIGN AWARDS
                 ======================= */}
             {activeTab === 'assign' && (
-              <div className="flex flex-col lg:flex-row gap-8">
-                <div className="w-full lg:w-1/3 bg-white p-6 rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.05)] border border-slate-100 h-fit">
-                  <h2 className="text-xl font-bold border-b pb-3 mb-5 text-slate-800 flex items-center gap-2">
-                    <Award size={20} className="text-yellow-500" /> Assign Award to Wall
+              <div className="flex flex-col lg:flex-row gap-6">
+                <div className="w-full lg:w-1/3 bg-white p-5 rounded-xl shadow-sm border border-slate-100 h-fit">
+                  <h2 className="text-lg font-bold border-b pb-2 mb-4 text-slate-800 flex items-center gap-2">
+                    <Award size={18} className="text-yellow-500" /> Assign Award to Wall
                   </h2>
 
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-600 uppercase">Select Category</label>
                       <select 
                         value={assignForm.type}
                         onChange={(e) => setAssignForm({...assignForm, type: e.target.value, profileId: ''})}
-                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-black text-blue-800 bg-slate-50"
+                        className="w-full p-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-black text-blue-800 bg-slate-50"
                       >
                         {TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                       </select>
@@ -914,7 +914,7 @@
                       <select 
                         value={assignForm.profileId}
                         onChange={(e) => setAssignForm({...assignForm, profileId: e.target.value})}
-                        className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                        className="w-full p-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
                       >
                         <option value="">-- Select Awardee --</option>
                         {profilesData.filter(p => p.type === assignForm.type).map(p => (
@@ -923,13 +923,13 @@
                       </select>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-slate-600 uppercase">Session</label>
                         <select 
                           value={assignForm.session}
                           onChange={(e) => setAssignForm({...assignForm, session: e.target.value})}
-                          className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                          className="w-full p-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
                         >
                           {SESSIONS.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
@@ -939,7 +939,7 @@
                         <select 
                           value={assignForm.month}
                           onChange={(e) => setAssignForm({...assignForm, month: e.target.value})}
-                          className="w-full p-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
+                          className="w-full p-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm font-semibold"
                         >
                           {MONTHS.map(m => <option key={m} value={m}>{m} ({getMonthYearDisplay(assignForm.session, m)})</option>)}
                         </select>
@@ -949,33 +949,33 @@
                     <button 
                       onClick={handleAssignAward}
                       disabled={isSaving}
-                      className="w-full mt-4 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-yellow-950 font-black py-3 rounded-lg flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50"
+                      className="w-full mt-3 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-yellow-950 font-black py-2.5 text-sm rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-sm disabled:opacity-50"
                     >
-                      {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Star size={20} fill="currentColor" />}
+                      {isSaving ? <Loader2 className="animate-spin" size={16} /> : <Star size={16} fill="currentColor" />}
                       {isSaving ? 'Assigning...' : 'Assign to Wall'}
                     </button>
                   </div>
                 </div>
 
-                <div className="w-full lg:w-2/3 bg-white p-6 rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.05)] border border-slate-100 overflow-hidden flex flex-col">
-                  <h2 className="text-xl font-bold border-b pb-3 mb-4 text-slate-800 flex items-center gap-2">
-                    <LayoutGrid size={20} className="text-slate-600" /> Assigned Awards History
+                <div className="w-full lg:w-2/3 bg-white p-5 rounded-xl shadow-sm border border-slate-100 overflow-hidden flex flex-col">
+                  <h2 className="text-lg font-bold border-b pb-2 mb-3 text-slate-800 flex items-center gap-2">
+                    <LayoutGrid size={18} className="text-slate-600" /> Assigned Awards History
                   </h2>
 
                   <div className="overflow-x-auto flex-1">
                     <table className="w-full text-sm text-left">
-                      <thead className="bg-slate-50 text-slate-500 uppercase font-black text-xs border-y">
+                      <thead className="bg-slate-50 text-slate-500 uppercase font-black text-[10px] border-y">
                         <tr>
-                          <th className="px-4 py-4">Awardee</th>
-                          <th className="px-4 py-4">Type</th>
-                          <th className="px-4 py-4">Session & Month</th>
-                          <th className="px-4 py-4 text-right">Actions</th>
+                          <th className="px-3 py-3">Awardee</th>
+                          <th className="px-3 py-3">Type</th>
+                          <th className="px-3 py-3">Session & Month</th>
+                          <th className="px-3 py-3 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         {awardsData.length === 0 ? (
                           <tr>
-                            <td colSpan="4" className="text-center py-10 text-slate-400 font-medium">
+                            <td colSpan="4" className="text-center py-8 text-slate-400 font-medium text-xs">
                               No awards have been assigned yet.
                             </td>
                           </tr>
@@ -988,28 +988,28 @@
 
                             return (
                               <tr key={item.id} className="hover:bg-slate-50 transition-colors group">
-                                <td className="px-4 py-3 flex items-center gap-3">
-                                  <img src={displayImage} alt="User" className="w-10 h-10 rounded-full object-cover border shadow-sm" />
+                                <td className="px-3 py-2 flex items-center gap-2.5">
+                                  <img src={displayImage} alt="User" className="w-8 h-8 rounded-full object-cover border shadow-sm" />
                                   <div>
-                                    <p className="font-extrabold text-slate-800">{displayName}</p>
-                                    <p className="text-[11px] font-bold text-slate-500">{displayDealership}</p>
+                                    <p className="font-extrabold text-slate-800 text-sm">{displayName}</p>
+                                    <p className="text-[10px] font-bold text-slate-500">{displayDealership}</p>
                                   </div>
                                 </td>
-                                <td className="px-4 py-3 font-black text-blue-700">
+                                <td className="px-3 py-2 font-black text-blue-700 text-xs">
                                   {item.type}
                                 </td>
-                                <td className="px-4 py-3">
-                                  <span className="bg-slate-100 border border-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-xs font-black">
+                                <td className="px-3 py-2">
+                                  <span className="bg-slate-100 border border-slate-200 text-slate-700 px-2 py-1 rounded-full text-[10px] font-black">
                                     {item.month} ({item.session})
                                   </span>
                                 </td>
-                                <td className="px-4 py-3 text-right">
+                                <td className="px-3 py-2 text-right">
                                   <button 
                                     onClick={() => handleDeleteAward(item.id)}
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors border border-transparent hover:border-red-100 opacity-100 lg:opacity-50 group-hover:opacity-100"
+                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-md transition-colors border border-transparent hover:border-red-100 opacity-100 lg:opacity-50 group-hover:opacity-100"
                                     title="Remove from Wall"
                                   >
-                                    <Trash2 size={18} />
+                                    <Trash2 size={16} />
                                   </button>
                                 </td>
                               </tr>
