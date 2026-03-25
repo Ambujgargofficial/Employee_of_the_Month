@@ -27,16 +27,18 @@
 
   <!-- Babel to compile React JSX in the browser -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- html2canvas for Exporting as Image -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
   <div id="root"></div>
 
   <!-- Note: type="text/babel" and data-type="module" allows using real import statements -->
   <script type="text/babel" data-type="module">
-    // 100% exact imports as your original code, just routed through esm.sh CDN so the browser understands them
     import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18.2.0';
     import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
-    import { Award, User, Building, Calendar, Image as ImageIcon, Trash2, PlusCircle, LayoutGrid, Database, Save, Loader2, Users, UserCheck, MapPin, Edit, Star, Crown, Trophy, Printer, X, Settings2, ChevronDown, ChevronUp, Palette } from 'https://esm.sh/lucide-react@0.294.0';
+    import { Award, User, Building, Calendar, Image as ImageIcon, Trash2, PlusCircle, LayoutGrid, Database, Save, Loader2, Users, UserCheck, MapPin, Edit, Star, Crown, Trophy, Printer, X, Settings2, ChevronDown, ChevronUp, Palette, Download } from 'https://esm.sh/lucide-react@0.294.0';
 
     // --- Configuration & Constants ---
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby16y1DHDP33sVhTZKGlD6j_z278bbX1kx6_POi8GZS7G3EJuh-hjSVEyMAaKFu76VGXA/exec'; 
@@ -93,10 +95,12 @@
       const [selectedType, setSelectedType] = useState('Employee');
       const [showYearWinner, setShowYearWinner] = useState(false); 
       const [gridLayout, setGridLayout] = useState('4'); 
-      const [cardSize, setCardSize] = useState('medium'); // Overall card size
-      const [profilePicSize, setProfilePicSize] = useState('medium'); // Inner user pic size
       const [showAdvancedSettings, setShowAdvancedSettings] = useState(false); 
-      const [selectedTheme, setSelectedTheme] = useState('classic'); // Default to Classic Theme
+      const [selectedTheme, setSelectedTheme] = useState('classic'); 
+      
+      // Zoom State
+      const [zoomLevel, setZoomLevel] = useState(100); 
+      const [isExporting, setIsExporting] = useState(false);
 
       // Data State
       const [awardsData, setAwardsData] = useState([]);
@@ -162,7 +166,7 @@
           
           if (!result.success) throw new Error(result.error || 'Failed to save on server');
           
-          await fetchData(); // Refresh data after saving
+          await fetchData(); 
           return true;
         } catch (error) {
           console.error(`Error during ${action}:`, error);
@@ -282,6 +286,59 @@
         }
       };
 
+      // --- Export to Image for WhatsApp ---
+      const exportWallImage = () => {
+        const element = document.getElementById('wall-export-area');
+        if (!element) return;
+        
+        setIsExporting(true);
+        
+        // Save current zoom, reset to 100 for a clear unscaled high-res export
+        const currentZoom = zoomLevel;
+        setZoomLevel(100);
+        
+        // Wait for DOM to apply zoom=100 and repaint before capturing
+        setTimeout(() => {
+          window.html2canvas(document.getElementById('wall-export-area'), { 
+            scale: 2, 
+            useCORS: true, 
+            backgroundColor: '#f8fafc',
+            windowWidth: 1440, // Force desktop width
+            width: 1440, // Force container width
+            onclone: (clonedDocument) => {
+              const clonedElement = clonedDocument.getElementById('wall-export-area');
+              // Remove zoom to prevent cropping issues
+              clonedElement.style.zoom = '1';
+              clonedElement.style.width = '1440px';
+              clonedElement.style.maxWidth = '1440px';
+              clonedElement.style.padding = '30px 40px'; // Add padding for clean borders
+              
+              // Only remove tricky hidden overflows to prevent hard cuts
+              const textElements = clonedElement.querySelectorAll('h3, div, p, span');
+              textElements.forEach(t => {
+                if(t.style.overflow === 'hidden') {
+                    t.style.overflow = 'visible';
+                }
+              });
+            }
+          }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `Star_Performers_${selectedSession}_${selectedType.replace(/\s+/g, '_')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            // Restore user's zoom level
+            setZoomLevel(currentZoom);
+            setIsExporting(false);
+          }).catch(err => {
+            console.error("Export Error:", err);
+            setZoomLevel(currentZoom);
+            setIsExporting(false);
+            alert("Export failed. Please try again.");
+          });
+        }, 800); 
+      };
+
       // --- Calculate "Of the Year" Winner ---
       const getOfTheYearWinner = () => {
         const relevantAwards = awardsData.filter(a => a.session === selectedSession && a.type === selectedType);
@@ -362,14 +419,13 @@
             </div>
           </header>
 
-          {/* INCREASED MAX WIDTH HERE */}
           <main className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-8">
             
             {/* =======================
                 VIEW 1: WALL OF FAME
                 ======================= */}
             {activeTab === 'wall' && (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 
                 {/* Filters Navigation Panel */}
                 <div className="bg-white/90 backdrop-blur-md p-3 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200/80 flex flex-col gap-4 w-fit mx-auto transition-all duration-300 relative z-30">
@@ -397,6 +453,16 @@
                       <Settings2 size={16} />
                       Settings
                       {showAdvancedSettings ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
+
+                    {/* EXPORT WHATSAPP BUTTON */}
+                    <button
+                      onClick={exportWallImage}
+                      disabled={isExporting}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all font-bold text-sm whitespace-nowrap shadow-sm bg-green-600 hover:bg-green-700 text-white border-green-700 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+                      {isExporting ? 'Preparing...' : 'Export for WhatsApp'}
                     </button>
                   </div>
 
@@ -452,206 +518,199 @@
                         </select>
                       </div>
 
-                      {/* Card Size Selector */}
-                      <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-                        <LayoutGrid size={16} className="text-slate-400 ml-1" />
-                        <select 
-                          value={cardSize}
-                          onChange={(e) => setCardSize(e.target.value)}
-                          className="p-1.5 bg-transparent font-bold text-slate-700 focus:ring-0 outline-none text-sm cursor-pointer"
-                          title="Card Size Settings"
-                        >
-                          <option value="small">Small Card</option>
-                          <option value="medium">Medium Card</option>
-                          <option value="large">Large Card</option>
-                        </select>
-                      </div>
-
-                      {/* Profile Pic Size Selector */}
-                      <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-                        <User size={16} className="text-slate-400 ml-1" />
-                        <select 
-                          value={profilePicSize}
-                          onChange={(e) => setProfilePicSize(e.target.value)}
-                          className="p-1.5 bg-transparent font-bold text-slate-700 focus:ring-0 outline-none text-sm cursor-pointer"
-                          title="User Profile Pic Settings"
-                        >
-                          <option value="small">Small Pic</option>
-                          <option value="medium">Medium Pic</option>
-                          <option value="large">Large Pic</option>
-                        </select>
+                      {/* NEW ZOOM SLIDER */}
+                      <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider pl-1">Zoom:</span>
+                        <input 
+                          type="range" 
+                          min="50" 
+                          max="150" 
+                          value={zoomLevel} 
+                          onChange={(e) => setZoomLevel(Number(e.target.value))} 
+                          className="w-24 accent-blue-600 cursor-pointer"
+                        />
+                        <span className="text-xs font-bold text-slate-700 w-8 text-right">{zoomLevel}%</span>
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Title */}
-                <div className="text-center py-6">
-                  <h2 className="text-3xl font-extrabold text-slate-800 uppercase tracking-wide">
-                    {selectedType} {selectedType !== 'Shine 100 Star Performer' ? 'of the Month' : ''}
-                  </h2>
-                  <div className="flex items-center justify-center gap-2 mt-2">
-                    <div className="h-0.5 w-12 bg-yellow-400"></div>
-                    <p className="text-slate-500 font-bold text-lg">Session {selectedSession}</p>
-                    <div className="h-0.5 w-12 bg-yellow-400"></div>
+                {/* === EXPORT AREA START === */}
+                {/* CSS Zoom is applied here dynamically */}
+                <div id="wall-export-area" className="bg-slate-50 pt-1 pb-8 px-4" style={{ zoom: `${zoomLevel}%` }}>
+                  
+                  {/* Title - Reduced Top Margin/Padding to minimize empty space */}
+                  <div className="text-center pb-2 mb-2">
+                    <h2 className="text-3xl font-extrabold text-slate-800 uppercase tracking-wide">
+                      {selectedType} {selectedType !== 'Shine 100 Star Performer' ? 'of the Month' : ''}
+                    </h2>
+                    <div className="flex items-center justify-center gap-2 mt-1">
+                      <div className="h-0.5 w-12 bg-yellow-400"></div>
+                      <p className="text-slate-500 font-bold text-lg">Session {selectedSession}</p>
+                      <div className="h-0.5 w-12 bg-yellow-400"></div>
+                    </div>
                   </div>
-                </div>
 
-                {/* 12 Months Grid - Added mb-24 to fix overlap with Year Winner */}
-                <div className={`grid gap-x-6 gap-y-20 pb-16 mb-8 ${
-                  gridLayout === '2' ? 'grid-cols-1 sm:grid-cols-2' :
-                  gridLayout === '3' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
-                  gridLayout === '6' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6' :
-                  'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-                }`}>
-                  {MONTHS.map(month => {
-                    const rawEntry = awardsData.find(a => a.type === selectedType && a.session === selectedSession && a.month === month);
-                    const displayMonthYear = getMonthYearDisplay(selectedSession, month);
+                  {/* 12 Months Grid - Greatly reduced gap-y and padding to fit on one screen */}
+                  <div className={`grid gap-x-4 gap-y-14 pb-6 mt-0 ${
+                    gridLayout === '2' ? 'grid-cols-1 sm:grid-cols-2' :
+                    gridLayout === '3' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
+                    gridLayout === '6' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6' :
+                    'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                  }`}>
+                    {MONTHS.map(month => {
+                      const rawEntry = awardsData.find(a => a.type === selectedType && a.session === selectedSession && a.month === month);
+                      const displayMonthYear = getMonthYearDisplay(selectedSession, month);
 
-                    let entry = rawEntry;
-                    if (rawEntry) {
-                      const liveProfile = profilesData.find(p => p.id === rawEntry.profileId);
-                      if (liveProfile) {
-                        entry = { ...rawEntry, name: liveProfile.name, dealership: liveProfile.dealership, location: liveProfile.location, image: liveProfile.image };
+                      let entry = rawEntry;
+                      if (rawEntry) {
+                        const liveProfile = profilesData.find(p => p.id === rawEntry.profileId);
+                        if (liveProfile) {
+                          entry = { ...rawEntry, name: liveProfile.name, dealership: liveProfile.dealership, location: liveProfile.location, image: liveProfile.image };
+                        }
                       }
-                    }
 
-                    // Sizing Logic specifically for the card padding/heights
-                    const cardSizing = {
-                      small: { text: "text-sm", headerHeight: "h-20", padding: "px-2 pb-3", emptyHeight: "h-48", starSide: 14, starMid: 20 },
-                      medium: { text: "text-base", headerHeight: "h-28", padding: "px-4 pb-4", emptyHeight: "h-60", starSide: 18, starMid: 26 },
-                      large: { text: "text-lg", headerHeight: "h-36", padding: "px-6 pb-5", emptyHeight: "h-72", starSide: 22, starMid: 32 }
-                    }[cardSize];
-
-                    // Sizing Logic specifically for the user profile picture
-                    const picSizing = {
-                      small: { wrapper: "w-20 h-20", topOffset: "-top-10", textMargin: "mt-12" },
-                      medium: { wrapper: "w-32 h-32", topOffset: "-top-16", textMargin: "mt-20" },
-                      large: { wrapper: "w-40 h-40", topOffset: "-top-20", textMargin: "mt-28" }
-                    }[profilePicSize];
-
-                    if (entry) {
-                      return (
-                        <div 
-                          key={month} 
-                          className={`bg-white rounded-2xl shadow-xl border ${currentTheme.border} hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group relative mt-16 flex flex-col h-full z-10`}
-                        >
-                          {/* Golden Star Badge */}
-                          <div className="absolute -top-4 -right-4 z-40">
-                            <div className="relative flex items-center justify-center">
-                              <Star size={48} className="text-yellow-400 drop-shadow-md" fill="currentColor" />
-                              <Award size={20} className={`absolute ${currentTheme.text}`} />
+                      if (entry) {
+                        return (
+                          <div 
+                            key={month} 
+                            className={`bg-white rounded-2xl shadow-xl border ${currentTheme.border} hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group relative mt-12 flex flex-col z-10`}
+                          >
+                            {/* Golden Star Badge */}
+                            <div className="absolute -top-4 -right-4 z-40">
+                              <div className="relative flex items-center justify-center">
+                                <Star size={48} className="text-yellow-400 drop-shadow-md" fill="currentColor" />
+                                <Award size={20} className={`absolute ${currentTheme.text}`} />
+                              </div>
                             </div>
-                          </div>
 
-                          {/* Dynamic Header */}
-                          <div className={`${cardSizing.headerHeight} bg-gradient-to-br ${currentTheme.header} relative rounded-t-2xl flex justify-center overflow-hidden transition-all duration-300`}>
-                            <div className="absolute top-[-50%] left-[-20%] w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-                            <div className={`absolute top-3 left-3 bg-white/20 backdrop-blur-sm ${selectedTheme === 'gold' ? 'text-yellow-900' : 'text-white'} text-xs font-bold px-3 py-1 rounded shadow-inner uppercase tracking-wider z-10`}>
-                              {displayMonthYear}
-                            </div>
-                          </div>
-                          
-                          <div className={`flex flex-col items-center relative bg-white flex-grow rounded-b-2xl ${cardSizing.padding} transition-all duration-300`}>
-                            {/* ENHANCED Profile Picture Borders WITHOUT the Ribbon */}
-                            <div className={`absolute ${picSizing.topOffset} left-1/2 transform -translate-x-1/2 flex flex-col items-center z-20 transition-all duration-300`}>
-                              <div className={`${picSizing.wrapper} rounded-full border-[6px] border-white shadow-[0_8px_20px_rgb(0,0,0,0.15)] ring-2 ring-slate-200/50 bg-white flex items-center justify-center overflow-hidden z-20 relative transition-all duration-300`}>
-                                <img src={entry.image} alt={entry.name} className="w-full h-full object-cover" />
+                            {/* Dynamic Header Fixed Size */}
+                            <div className={`h-24 bg-gradient-to-br ${currentTheme.header} relative rounded-t-2xl flex justify-center overflow-hidden transition-all duration-300`}>
+                              <div className="absolute top-[-50%] left-[-20%] w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                              <div className={`absolute top-3 left-3 bg-white/20 backdrop-blur-sm ${selectedTheme === 'gold' ? 'text-yellow-900' : 'text-white'} text-xs font-bold px-3 py-1 rounded shadow-inner uppercase tracking-wider z-10`}>
+                                {displayMonthYear}
                               </div>
                             </div>
                             
-                            {/* Text formatting below the picture */}
-                            <div className={`${picSizing.textMargin} text-center w-full transition-all duration-300 flex flex-col items-center flex-grow justify-between`}>
-                              <div className="w-full">
-                                <h3 className={`${cardSize === 'small' ? 'text-lg' : cardSize === 'large' ? 'text-2xl' : 'text-xl'} font-black text-slate-800 leading-tight tracking-tight uppercase truncate px-2 transition-all duration-300 w-full`}>
-                                  {entry.name}
-                                </h3>
-                                
-                                <div className={`flex flex-col items-center gap-2 text-slate-500 font-semibold ${cardSizing.text} transition-all duration-300 mt-3 w-full`}>
-                                  <span className="flex items-center justify-center gap-2 bg-slate-50 px-4 py-1.5 rounded-full w-full max-w-[200px] border border-slate-100"><Building size={16} className="text-blue-600 flex-shrink-0" /> <span className="truncate">{entry.dealership}</span></span>
-                                  {entry.location && <span className="flex items-center justify-center gap-2 bg-slate-50 px-4 py-1.5 rounded-full w-full max-w-[200px] border border-slate-100"><MapPin size={16} className="text-red-500 flex-shrink-0" /> <span className="truncate">{entry.location}</span></span>}
+                            <div className={`flex flex-col items-center relative bg-white flex-grow rounded-b-2xl px-3 pb-3 transition-all duration-300`}>
+                              {/* Profile Picture Fixed Size */}
+                              <div className={`absolute -top-14 left-1/2 transform -translate-x-1/2 flex flex-col items-center z-20 transition-all duration-300`}>
+                                <div className={`w-28 h-28 rounded-full border-[5px] border-white shadow-[0_8px_20px_rgb(0,0,0,0.15)] ring-2 ring-slate-200/50 bg-white flex items-center justify-center overflow-hidden z-20 relative transition-all duration-300`}>
+                                  <img src={entry.image} alt={entry.name} className="w-full h-full object-cover" />
                                 </div>
                               </div>
+                              
+                              {/* Text formatting below the picture - Added pb-4 and leading-relaxed to prevent cutoff */}
+                              <div className={`mt-16 text-center w-full transition-all duration-300 flex flex-col items-center flex-grow justify-between pb-4`}>
+                                <div className="w-full">
+                                  <h3 className={`text-xl font-black text-slate-800 uppercase px-2 w-full break-words leading-relaxed pb-1`}>
+                                    {entry.name}
+                                  </h3>
+                                  
+                                  <div className={`flex flex-col items-center gap-2 text-slate-500 font-semibold text-sm transition-all duration-300 mt-1 w-full px-2`}>
+                                    {/* Changed to div and added py-2 for better vertical alignment in export */}
+                                    <div className="flex items-center justify-center gap-2 bg-slate-50 px-3 py-2 rounded-full w-full border border-slate-100 break-words leading-normal">
+                                      <Building size={14} className="text-blue-600 flex-shrink-0" /> 
+                                      <span className="pt-0.5">{entry.dealership}</span>
+                                    </div>
+                                    {entry.location && 
+                                      <div className="flex items-center justify-center gap-2 bg-slate-50 px-3 py-2 rounded-full w-full border border-slate-100 break-words leading-normal">
+                                        <MapPin size={14} className="text-red-500 flex-shrink-0" /> 
+                                        <span className="pt-0.5">{entry.location}</span>
+                                      </div>
+                                    }
+                                  </div>
+                                </div>
 
-                              {/* Dynamic 3 Stars added right below the location */}
-                              <div className="mt-4 flex gap-1.5 justify-center items-center">
-                                <Star className="text-yellow-400 drop-shadow-sm" fill="currentColor" size={cardSizing.starSide} />
-                                <Star className="text-yellow-500 drop-shadow-md" fill="currentColor" size={cardSizing.starMid} />
-                                <Star className="text-yellow-400 drop-shadow-sm" fill="currentColor" size={cardSizing.starSide} />
+                                {/* Dynamic 3 Stars */}
+                                <div className="mt-4 flex gap-1 justify-center items-center">
+                                  <Star className="text-yellow-400 drop-shadow-sm" fill="currentColor" size={16} />
+                                  <Star className="text-yellow-500 drop-shadow-md" fill="currentColor" size={24} />
+                                  <Star className="text-yellow-400 drop-shadow-sm" fill="currentColor" size={16} />
+                                </div>
                               </div>
                             </div>
+
+                            <div className={`absolute bottom-0 left-0 h-1.5 w-full bg-gradient-to-r ${currentTheme.header} rounded-b-2xl opacity-80`}></div>
                           </div>
-
-                          <div className={`absolute bottom-0 left-0 h-2 w-full bg-gradient-to-r ${currentTheme.header} rounded-b-2xl opacity-80`}></div>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div key={month} className={`bg-white rounded-2xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-6 ${cardSizing.emptyHeight} text-slate-400 mt-16 shadow-sm transition-all duration-300 z-10`}>
-                          <Calendar size={36} className="mb-3 text-slate-300" />
-                          <p className="font-extrabold text-slate-500 text-lg">{displayMonthYear}</p>
-                          <p className="text-xs mt-1 font-medium bg-slate-100 px-3 py-1 rounded text-slate-500">Awaiting Entry</p>
-                        </div>
-                      );
-                    }
-                  })}
-                </div>
-
-                {/* GRAND CARD - OF THE YEAR WINNER (Overlap Issue Fixed by giving more top margin and border) */}
-                {showYearWinner && (
-                  <div className="mt-24 pt-16 border-t-[3px] border-dashed border-slate-300 pb-10 animate-fade-in relative z-20">
-                    <div className="text-center mb-16">
-                      <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 uppercase tracking-widest drop-shadow-sm flex justify-center items-center gap-3">
-                        <Crown size={40} className="text-yellow-500" fill="currentColor" />
-                        {selectedType} of the Year
-                        <Crown size={40} className="text-yellow-500" fill="currentColor" />
-                      </h2>
-                      <p className="text-slate-600 font-bold mt-2 uppercase tracking-widest">Highest Achiever ({selectedSession})</p>
-                    </div>
-
-                    {yearWinner ? (
-                      <div 
-                        className="max-w-xl mx-auto bg-gradient-to-b from-yellow-100 via-white to-yellow-50 rounded-3xl shadow-[0_20px_50px_rgb(234,179,8,0.3)] border-2 border-yellow-300 overflow-hidden relative"
-                      >
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-300/30 rounded-full blur-3xl"></div>
-                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl"></div>
-
-                        <div className="h-32 bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 flex justify-center items-center relative overflow-hidden">
-                           <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
-                           <div className="absolute top-4 bg-white/80 backdrop-blur text-yellow-800 text-xs font-black px-4 py-1.5 rounded-full shadow-md border border-yellow-200 uppercase tracking-widest">
-                             {yearWinner.winCount} Times Winner
-                           </div>
-                        </div>
-
-                        <div className="flex flex-col items-center px-6 pb-10 relative z-10 pt-24">
-                          <div className="absolute -top-20 w-40 h-40 rounded-full border-8 border-white shadow-2xl bg-yellow-50 overflow-hidden p-1 ring-4 ring-yellow-400/30">
-                            <img src={yearWinner.image} alt={yearWinner.name} className="w-full h-full object-cover rounded-full" />
+                        );
+                      } else {
+                        return (
+                          <div key={month} className={`bg-white rounded-2xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-6 h-56 text-slate-400 mt-12 shadow-sm transition-all duration-300 z-10`}>
+                            <Calendar size={32} className="mb-2 text-slate-300" />
+                            <p className="font-extrabold text-slate-500 text-base">{displayMonthYear}</p>
+                            <p className="text-[10px] mt-1 font-medium bg-slate-100 px-2 py-0.5 rounded text-slate-500">Awaiting Entry</p>
                           </div>
-                          
-                          <h3 className="text-3xl font-black text-slate-900 text-center mt-2 uppercase tracking-tight">{yearWinner.name}</h3>
-                          <div className="w-16 h-1 bg-gradient-to-r from-yellow-300 to-yellow-500 my-4 rounded-full"></div>
-                          
-                          <div className="flex flex-col items-center gap-2 text-slate-700 font-bold text-sm">
-                            <span className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-yellow-100"><Building size={16} className="text-blue-600" /> Dealership: {yearWinner.dealership}</span>
-                            {yearWinner.location && <span className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-yellow-100"><MapPin size={16} className="text-red-500" /> Location: {yearWinner.location}</span>}
-                          </div>
-
-                          <div className="mt-8 flex gap-2 justify-center">
-                            <Star className="text-yellow-400" fill="currentColor" size={24} />
-                            <Star className="text-yellow-500" fill="currentColor" size={32} />
-                            <Star className="text-yellow-400" fill="currentColor" size={24} />
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="max-w-xl mx-auto bg-slate-100 rounded-3xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-12 text-slate-400">
-                        <Trophy size={64} className="mb-4 text-slate-300" />
-                        <p className="font-extrabold text-slate-500 text-xl">No record found</p>
-                        <p className="text-sm mt-2 text-center">No awards have been recorded for this session yet.</p>
-                      </div>
-                    )}
+                        );
+                      }
+                    })}
                   </div>
-                )}
+
+                  {/* GRAND CARD - Tighter spacing above it */}
+                  {showYearWinner && (
+                    <div className="mt-6 pt-10 border-t-[3px] border-dashed border-slate-300 pb-4 animate-fade-in relative z-20">
+                      <div className="text-center mb-10">
+                        <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 uppercase tracking-widest drop-shadow-sm flex justify-center items-center gap-3 leading-relaxed">
+                          <Crown size={32} className="text-yellow-500" fill="currentColor" />
+                          {selectedType} of the Year
+                          <Crown size={32} className="text-yellow-500" fill="currentColor" />
+                        </h2>
+                        <p className="text-slate-600 font-bold mt-1 text-sm uppercase tracking-widest">Highest Achiever ({selectedSession})</p>
+                      </div>
+
+                      {yearWinner ? (
+                        <div 
+                          className="max-w-xl mx-auto bg-gradient-to-b from-yellow-100 via-white to-yellow-50 rounded-3xl shadow-[0_20px_50px_rgb(234,179,8,0.3)] border-2 border-yellow-300 overflow-hidden relative"
+                        >
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-300/30 rounded-full blur-3xl"></div>
+                          <div className="absolute bottom-0 left-0 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl"></div>
+
+                          <div className="h-28 bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 flex justify-center items-center relative overflow-hidden">
+                             <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
+                             <div className="absolute top-3 bg-white/80 backdrop-blur text-yellow-800 text-xs font-black px-4 py-1.5 rounded-full shadow-md border border-yellow-200 uppercase tracking-widest">
+                               {yearWinner.winCount} Times Winner
+                             </div>
+                          </div>
+
+                          <div className="flex flex-col items-center px-6 pb-8 relative z-10 pt-20">
+                            <div className="absolute -top-16 w-32 h-32 rounded-full border-[6px] border-white shadow-2xl bg-yellow-50 overflow-hidden p-1 ring-4 ring-yellow-400/30">
+                              <img src={yearWinner.image} alt={yearWinner.name} className="w-full h-full object-cover rounded-full" />
+                            </div>
+                            
+                            <h3 className="text-2xl font-black text-slate-900 text-center mt-2 uppercase tracking-tight leading-relaxed pb-1">{yearWinner.name}</h3>
+                            <div className="w-12 h-1 bg-gradient-to-r from-yellow-300 to-yellow-500 my-3 rounded-full"></div>
+                            
+                            <div className="flex flex-col items-center gap-2 text-slate-700 font-bold text-sm w-full max-w-[280px]">
+                              <div className="flex items-center justify-center gap-2 bg-white px-3 py-2 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
+                                <Building size={14} className="text-blue-600" /> 
+                                <span className="pt-0.5">Dealership: {yearWinner.dealership}</span>
+                              </div>
+                              {yearWinner.location && 
+                                <div className="flex items-center justify-center gap-2 bg-white px-3 py-2 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
+                                  <MapPin size={14} className="text-red-500" /> 
+                                  <span className="pt-0.5">Location: {yearWinner.location}</span>
+                                </div>
+                              }
+                            </div>
+
+                            <div className="mt-6 flex gap-2 justify-center">
+                              <Star className="text-yellow-400" fill="currentColor" size={20} />
+                              <Star className="text-yellow-500" fill="currentColor" size={28} />
+                              <Star className="text-yellow-400" fill="currentColor" size={20} />
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="max-w-xl mx-auto bg-slate-100 rounded-3xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-8 text-slate-400">
+                          <Trophy size={48} className="mb-3 text-slate-300" />
+                          <p className="font-extrabold text-slate-500 text-lg">No record found</p>
+                          <p className="text-xs mt-1 text-center">No awards have been recorded for this session yet.</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                {/* === EXPORT AREA END === */}
               </div>
             )}
 
