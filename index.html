@@ -65,7 +65,7 @@
       return `${month}-${yearSuffix}`;
     };
 
-    // Image Compression Helper
+    // Image compress karne ka helper
     const compressImage = (file) => {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -90,7 +90,7 @@
     function App() {
       const [activeTab, setActiveTab] = useState('wall'); 
       
-      // Wall Filters aur Features
+      // Wall ke filters aur features
       const [selectedSession, setSelectedSession] = useState('2025-26');
       const [selectedType, setSelectedType] = useState('Employee');
       const [showYearWinner, setShowYearWinner] = useState(false); 
@@ -98,16 +98,16 @@
       const [showAdvancedSettings, setShowAdvancedSettings] = useState(false); 
       const [selectedTheme, setSelectedTheme] = useState('classic'); 
       
-      // Zoom ki State
+      // Zoom ki state
       const [zoomLevel, setZoomLevel] = useState(100); 
       const [isExporting, setIsExporting] = useState(false);
 
-      // Data State
+      // Data ki state
       const [awardsData, setAwardsData] = useState([]);
       const [profilesData, setProfilesData] = useState([]); 
       const [loading, setLoading] = useState(true);
 
-      // Master Profiles ke liye Form State
+      // Master Profiles ke liye form state
       const [profileForm, setProfileForm] = useState({
         type: 'Employee',
         name: '',
@@ -117,7 +117,7 @@
       });
       const [editingProfileId, setEditingProfileId] = useState(null); 
 
-      // Awards Assign karne ke liye Form State
+      // Awards Assign karne ke liye form state
       const [assignForm, setAssignForm] = useState({
         type: 'Employee',
         session: '2025-26',
@@ -128,7 +128,7 @@
       const [isSaving, setIsSaving] = useState(false);
       const fileInputRef = useRef(null);
 
-      // --- Google Sheets se Data Fetch karna ---
+      // --- Google Sheets se data fetch karna ---
       const fetchData = async () => {
         try {
           const response = await fetch(`${SCRIPT_URL}?action=getData`);
@@ -175,7 +175,7 @@
         }
       };
 
-      // --- Master Profile Save / Update karein ---
+      // --- Master Profile ko save ya update karein ---
       const handleSaveProfile = async () => {
         if (!profileForm.name || !profileForm.dealership || !profileForm.location || !profileForm.image) {
           alert("Please fill in all details and upload an image!");
@@ -233,7 +233,7 @@
         setEditingProfileId(null);
       };
 
-      // --- Award ko Wall par assign karein ---
+      // --- Award ko wall par assign karein ---
       const handleAssignAward = async () => {
         if (!assignForm.profileId) {
           alert("Please select a profile!");
@@ -286,7 +286,7 @@
         }
       };
 
-      // --- WhatsApp ke liye Image export karein ---
+      // --- WhatsApp ke liye image export karein ---
       const exportWallImage = () => {
         const element = document.getElementById('wall-export-area');
         if (!element) return;
@@ -345,7 +345,7 @@
         }, 800); 
       };
 
-      // --- "Of the Year" Winner ko calculate karein ---
+      // --- Of the Year winner calculate karein ---
       const getOfTheYearWinner = () => {
         const relevantAwards = awardsData.filter(a => a.session === selectedSession && a.type === selectedType);
         if (relevantAwards.length === 0) return null;
@@ -566,8 +566,8 @@
                     </div>
                   </div>
 
-                  {/* 12 Months Grid - Highly compact gaps. gap-y-9 perfectly aligns with the -top-8 avatar */}
-                  <div className={`grid gap-x-3 gap-y-9 pt-8 pb-0 mt-0 ${
+                  {/* 12 Months Grid - Gap-y ko 0 kar diya gaya hai taaki rows mil kar aayen */}
+                  <div className={`grid gap-x-3 gap-y-0 pt-6 pb-0 mt-0 ${
                     gridLayout === '2' ? 'grid-cols-1 sm:grid-cols-2' :
                     gridLayout === '3' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
                     gridLayout === '6' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6' :
@@ -589,7 +589,7 @@
                         return (
                           <div 
                             key={month} 
-                            className={`bg-white rounded-xl shadow-md border ${currentTheme.border} hover:shadow-lg transition-all duration-300 group relative flex flex-col z-10`}
+                            className={`bg-white rounded-xl shadow-md border ${currentTheme.border} hover:shadow-lg transition-all duration-300 group relative flex flex-col z-10 mt-8`}
                           >
                             {/* Golden Star Badge */}
                             <div className="absolute -top-3 -right-3 z-40">
@@ -651,7 +651,7 @@
                         );
                       } else {
                         return (
-                          <div key={month} className={`bg-white rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-4 h-[168px] text-slate-400 shadow-sm transition-all duration-300 z-10`}>
+                          <div key={month} className={`bg-white rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-4 h-[168px] text-slate-400 shadow-sm transition-all duration-300 z-10 mt-8`}>
                             <Calendar size={24} className="mb-2 text-slate-300" />
                             <p className="font-extrabold text-slate-500 text-sm">{displayMonthYear}</p>
                             <p className="text-[9px] mt-1 font-medium bg-slate-100 px-2 py-0.5 rounded text-slate-500">Awaiting Entry</p>
@@ -661,7 +661,7 @@
                     })}
                   </div>
 
-                  {/* GRAND CARD - Tighter spacing above it */}
+                  {/* GRAND CARD - Upar ki spacing kam ki gayi hai */}
                   {showYearWinner && (
                     <div className="mt-2 pt-4 border-t-2 border-dashed border-slate-300 pb-2 animate-fade-in relative z-20">
                       <div className="text-center mb-8">
