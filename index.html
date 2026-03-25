@@ -40,14 +40,14 @@
     import { createRoot } from 'https://esm.sh/react-dom@18.2.0/client';
     import { Award, User, Building, Calendar, Image as ImageIcon, Trash2, PlusCircle, LayoutGrid, Database, Save, Loader2, Users, UserCheck, MapPin, Edit, Star, Crown, Trophy, Printer, X, Settings2, ChevronDown, ChevronUp, Palette, Download } from 'https://esm.sh/lucide-react@0.294.0';
 
-    // --- Configuration & Constants ---
+    // --- Configuration aur Constants ---
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby16y1DHDP33sVhTZKGlD6j_z278bbX1kx6_POi8GZS7G3EJuh-hjSVEyMAaKFu76VGXA/exec'; 
 
     const MONTHS = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
     const TYPES = ['Employee', 'AD', 'EC', 'Shine 100 Star Performer']; 
     const SESSIONS = ['2024-25', '2025-26', '2026-27', '2027-28'];
 
-    // --- THEMES FOR TOP 12 CARDS ---
+    // --- Top 12 Cards ke liye Themes ---
     const THEMES = {
       classic: { label: 'Classic Original', header: 'from-blue-900 via-blue-800 to-blue-600', text: 'text-blue-900', border: 'border-slate-100' },
       gold: { label: 'Royal Gold', header: 'from-yellow-500 via-yellow-400 to-yellow-600', text: 'text-yellow-900', border: 'border-yellow-200' },
@@ -57,7 +57,7 @@
       dark: { label: 'Midnight Slate', header: 'from-slate-900 via-slate-800 to-slate-700', text: 'text-slate-900', border: 'border-slate-300' }
     };
 
-    // Helper to calculate the display string like "Apr-25"
+    // Display string nikalne ke liye helper ("Apr-25")
     const getMonthYearDisplay = (session, month) => {
       const [startYear, endYear] = session.split('-');
       const isNextYear = ['Jan', 'Feb', 'Mar'].includes(month);
@@ -90,7 +90,7 @@
     function App() {
       const [activeTab, setActiveTab] = useState('wall'); 
       
-      // Wall Filters & Features
+      // Wall Filters aur Features
       const [selectedSession, setSelectedSession] = useState('2025-26');
       const [selectedType, setSelectedType] = useState('Employee');
       const [showYearWinner, setShowYearWinner] = useState(false); 
@@ -98,7 +98,7 @@
       const [showAdvancedSettings, setShowAdvancedSettings] = useState(false); 
       const [selectedTheme, setSelectedTheme] = useState('classic'); 
       
-      // Zoom State
+      // Zoom ki State
       const [zoomLevel, setZoomLevel] = useState(100); 
       const [isExporting, setIsExporting] = useState(false);
 
@@ -107,7 +107,7 @@
       const [profilesData, setProfilesData] = useState([]); 
       const [loading, setLoading] = useState(true);
 
-      // Form State (For Master Profiles)
+      // Master Profiles ke liye Form State
       const [profileForm, setProfileForm] = useState({
         type: 'Employee',
         name: '',
@@ -117,7 +117,7 @@
       });
       const [editingProfileId, setEditingProfileId] = useState(null); 
 
-      // Form State (For Assigning Awards)
+      // Awards Assign karne ke liye Form State
       const [assignForm, setAssignForm] = useState({
         type: 'Employee',
         session: '2025-26',
@@ -128,7 +128,7 @@
       const [isSaving, setIsSaving] = useState(false);
       const fileInputRef = useRef(null);
 
-      // --- Data Fetching from Google Sheets ---
+      // --- Google Sheets se Data Fetch karna ---
       const fetchData = async () => {
         try {
           const response = await fetch(`${SCRIPT_URL}?action=getData`);
@@ -175,7 +175,7 @@
         }
       };
 
-      // --- Save / Update Master Profile ---
+      // --- Master Profile Save / Update karein ---
       const handleSaveProfile = async () => {
         if (!profileForm.name || !profileForm.dealership || !profileForm.location || !profileForm.image) {
           alert("Please fill in all details and upload an image!");
@@ -233,7 +233,7 @@
         setEditingProfileId(null);
       };
 
-      // --- Assign Award to Wall ---
+      // --- Award ko Wall par assign karein ---
       const handleAssignAward = async () => {
         if (!assignForm.profileId) {
           alert("Please select a profile!");
@@ -286,34 +286,34 @@
         }
       };
 
-      // --- Export to Image for WhatsApp ---
+      // --- WhatsApp ke liye Image export karein ---
       const exportWallImage = () => {
         const element = document.getElementById('wall-export-area');
         if (!element) return;
         
         setIsExporting(true);
         
-        // Save current zoom, reset to 100 for a clear unscaled high-res export
+        // Export se pehle zoom ko 100 set karein taaki quality clear rahe
         const currentZoom = zoomLevel;
         setZoomLevel(100);
         
-        // Wait for DOM to apply zoom=100 and repaint before capturing
+        // 800ms ka thoda delay taaki browser DOM ko theek se repaint kar sake
         setTimeout(() => {
           window.html2canvas(document.getElementById('wall-export-area'), { 
             scale: 2, 
             useCORS: true, 
             backgroundColor: '#f8fafc',
-            windowWidth: 1440, // Force desktop width
-            width: 1440, // Force container width
+            windowWidth: 1440, 
+            width: 1440, 
             onclone: (clonedDocument) => {
               const clonedElement = clonedDocument.getElementById('wall-export-area');
-              // Remove zoom to prevent cropping issues
+              // Cropping se bachne ke liye zoom hata rahe hain
               clonedElement.style.zoom = '1';
               clonedElement.style.width = '1440px';
               clonedElement.style.maxWidth = '1440px';
-              clonedElement.style.padding = '30px 40px'; // Add padding for clean borders
+              clonedElement.style.padding = '20px 30px'; 
               
-              // Only remove tricky hidden overflows to prevent hard cuts
+              // Text ko cut hone se rokne ke liye overflow theek kiya
               const textElements = clonedElement.querySelectorAll('h3, div, p, span');
               textElements.forEach(t => {
                 if(t.style.overflow === 'hidden') {
@@ -327,7 +327,7 @@
             link.href = canvas.toDataURL('image/png');
             link.click();
             
-            // Restore user's zoom level
+            // Zoom ko wapis pehle jaisa set kar diya
             setZoomLevel(currentZoom);
             setIsExporting(false);
           }).catch(err => {
@@ -339,7 +339,7 @@
         }, 800); 
       };
 
-      // --- Calculate "Of the Year" Winner ---
+      // --- "Of the Year" Winner ko calculate karein ---
       const getOfTheYearWinner = () => {
         const relevantAwards = awardsData.filter(a => a.session === selectedSession && a.type === selectedType);
         if (relevantAwards.length === 0) return null;
@@ -551,8 +551,8 @@
                     </div>
                   </div>
 
-                  {/* 12 Months Grid - Highly compact gaps (gap-y-6) and compact margin tops */}
-                  <div className={`grid gap-x-3 gap-y-6 pb-2 mt-2 ${
+                  {/* 12 Months Grid - Highly compact gaps. gap-y-5 used for minimal row distance */}
+                  <div className={`grid gap-x-3 gap-y-5 pt-4 pb-0 mt-0 ${
                     gridLayout === '2' ? 'grid-cols-1 sm:grid-cols-2' :
                     gridLayout === '3' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
                     gridLayout === '6' ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-6' :
@@ -574,7 +574,7 @@
                         return (
                           <div 
                             key={month} 
-                            className={`bg-white rounded-xl shadow-md border ${currentTheme.border} hover:shadow-lg transition-all duration-300 group relative mt-10 flex flex-col z-10`}
+                            className={`bg-white rounded-xl shadow-md border ${currentTheme.border} hover:shadow-lg transition-all duration-300 group relative flex flex-col z-10`}
                           >
                             {/* Golden Star Badge */}
                             <div className="absolute -top-3 -right-3 z-40">
@@ -585,36 +585,36 @@
                             </div>
 
                             {/* Dynamic Header Fixed Size - Compact Height */}
-                            <div className={`h-16 bg-gradient-to-br ${currentTheme.header} relative rounded-t-xl flex justify-center overflow-hidden transition-all duration-300`}>
+                            <div className={`h-12 bg-gradient-to-br ${currentTheme.header} relative rounded-t-xl flex justify-center overflow-hidden transition-all duration-300`}>
                               <div className="absolute top-[-50%] left-[-20%] w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
-                              <div className={`absolute top-2 left-2 bg-white/20 backdrop-blur-sm ${selectedTheme === 'gold' ? 'text-yellow-900' : 'text-white'} text-[10px] font-bold px-2 py-0.5 rounded shadow-inner uppercase tracking-wider z-10`}>
+                              <div className={`absolute top-1.5 left-1.5 bg-white/20 backdrop-blur-sm ${selectedTheme === 'gold' ? 'text-yellow-900' : 'text-white'} text-[10px] font-bold px-2 py-0.5 rounded shadow-inner uppercase tracking-wider z-10`}>
                                 {displayMonthYear}
                               </div>
                             </div>
                             
                             <div className={`flex flex-col items-center relative bg-white flex-grow rounded-b-xl px-2 pb-2 transition-all duration-300`}>
                               {/* Profile Picture Fixed Size - Compact Size & Positioning */}
-                              <div className={`absolute -top-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center z-20 transition-all duration-300`}>
-                                <div className={`w-20 h-20 rounded-full border-4 border-white shadow-[0_4px_10px_rgb(0,0,0,0.15)] ring-1 ring-slate-200/50 bg-white flex items-center justify-center overflow-hidden z-20 relative transition-all duration-300`}>
+                              <div className={`absolute -top-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center z-20 transition-all duration-300`}>
+                                <div className={`w-[64px] h-[64px] rounded-full border-[3px] border-white shadow-[0_4px_10px_rgb(0,0,0,0.15)] ring-1 ring-slate-200/50 bg-white flex items-center justify-center overflow-hidden z-20 relative transition-all duration-300`}>
                                   <img src={entry.image} alt={entry.name} className="w-full h-full object-cover" />
                                 </div>
                               </div>
                               
                               {/* Text formatting below the picture - Minimal Margins */}
-                              <div className={`mt-12 text-center w-full transition-all duration-300 flex flex-col items-center flex-grow justify-between pb-2`}>
+                              <div className={`mt-10 text-center w-full transition-all duration-300 flex flex-col items-center flex-grow justify-between pb-2`}>
                                 <div className="w-full">
                                   <h3 className={`text-base font-black text-slate-800 uppercase px-1 w-full break-words leading-normal pb-0`}>
                                     {entry.name}
                                   </h3>
                                   
                                   <div className={`flex flex-col items-center gap-1 text-slate-500 font-semibold text-xs transition-all duration-300 mt-1 w-full px-1`}>
-                                    {/* Changed to div and added py-1 for compact vertical alignment in export */}
-                                    <div className="flex items-center justify-center gap-1.5 bg-slate-50 px-2 py-1 rounded-full w-full border border-slate-100 break-words leading-normal">
+                                    {/* Changed to div and added py-0.5 for compact vertical alignment in export */}
+                                    <div className="flex items-center justify-center gap-1.5 bg-slate-50 px-2 py-0.5 rounded-full w-full border border-slate-100 break-words leading-normal">
                                       <Building size={12} className="text-blue-600 flex-shrink-0" /> 
                                       <span>{entry.dealership}</span>
                                     </div>
                                     {entry.location && 
-                                      <div className="flex items-center justify-center gap-1.5 bg-slate-50 px-2 py-1 rounded-full w-full border border-slate-100 break-words leading-normal">
+                                      <div className="flex items-center justify-center gap-1.5 bg-slate-50 px-2 py-0.5 rounded-full w-full border border-slate-100 break-words leading-normal">
                                         <MapPin size={12} className="text-red-500 flex-shrink-0" /> 
                                         <span>{entry.location}</span>
                                       </div>
@@ -636,7 +636,7 @@
                         );
                       } else {
                         return (
-                          <div key={month} className={`bg-white rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-4 h-40 text-slate-400 mt-10 shadow-sm transition-all duration-300 z-10`}>
+                          <div key={month} className={`bg-white rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-4 h-[168px] text-slate-400 shadow-sm transition-all duration-300 z-10`}>
                             <Calendar size={24} className="mb-2 text-slate-300" />
                             <p className="font-extrabold text-slate-500 text-sm">{displayMonthYear}</p>
                             <p className="text-[9px] mt-1 font-medium bg-slate-100 px-2 py-0.5 rounded text-slate-500">Awaiting Entry</p>
@@ -648,7 +648,7 @@
 
                   {/* GRAND CARD - Tighter spacing above it */}
                   {showYearWinner && (
-                    <div className="mt-4 pt-6 border-t-2 border-dashed border-slate-300 pb-2 animate-fade-in relative z-20">
+                    <div className="mt-2 pt-4 border-t-2 border-dashed border-slate-300 pb-2 animate-fade-in relative z-20">
                       <div className="text-center mb-8">
                         <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 uppercase tracking-widest drop-shadow-sm flex justify-center items-center gap-2 leading-relaxed">
                           <Crown size={24} className="text-yellow-500" fill="currentColor" />
@@ -665,15 +665,15 @@
                           <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-300/30 rounded-full blur-2xl"></div>
                           <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-400/20 rounded-full blur-2xl"></div>
 
-                          <div className="h-20 bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 flex justify-center items-center relative overflow-hidden">
+                          <div className="h-16 bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 flex justify-center items-center relative overflow-hidden">
                              <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '16px 16px'}}></div>
                              <div className="absolute top-2 bg-white/80 backdrop-blur text-yellow-800 text-[10px] font-black px-3 py-1 rounded-full shadow-sm border border-yellow-200 uppercase tracking-widest">
                                {yearWinner.winCount} Times Winner
                              </div>
                           </div>
 
-                          <div className="flex flex-col items-center px-4 pb-6 relative z-10 pt-14">
-                            <div className="absolute -top-12 w-24 h-24 rounded-full border-4 border-white shadow-xl bg-yellow-50 overflow-hidden p-1 ring-2 ring-yellow-400/30">
+                          <div className="flex flex-col items-center px-4 pb-6 relative z-10 pt-12">
+                            <div className="absolute -top-10 w-20 h-20 rounded-full border-4 border-white shadow-xl bg-yellow-50 overflow-hidden p-1 ring-2 ring-yellow-400/30">
                               <img src={yearWinner.image} alt={yearWinner.name} className="w-full h-full object-cover rounded-full" />
                             </div>
                             
@@ -681,12 +681,12 @@
                             <div className="w-10 h-1 bg-gradient-to-r from-yellow-300 to-yellow-500 my-2 rounded-full"></div>
                             
                             <div className="flex flex-col items-center gap-1.5 text-slate-700 font-bold text-xs w-full max-w-[240px]">
-                              <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
+                              <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
                                 <Building size={12} className="text-blue-600" /> 
                                 <span>Dealership: {yearWinner.dealership}</span>
                               </div>
                               {yearWinner.location && 
-                                <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
+                                <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
                                   <MapPin size={12} className="text-red-500" /> 
                                   <span>Location: {yearWinner.location}</span>
                                 </div>
