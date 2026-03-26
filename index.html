@@ -602,7 +602,7 @@
                             {/* Dynamic Header Fixed Size - Compact Height */}
                             <div className={`h-12 bg-gradient-to-br ${currentTheme.header} relative rounded-t-xl flex justify-center overflow-hidden transition-all duration-300`}>
                               <div className="absolute top-[-50%] left-[-20%] w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
-                              <div className={`absolute top-1.5 left-1.5 bg-white/20 backdrop-blur-sm ${selectedTheme === 'gold' ? 'text-yellow-900' : 'text-white'} text-[10px] font-bold px-2 py-0.5 rounded shadow-inner uppercase tracking-wider z-10`}>
+                              <div className={`absolute top-1.5 left-1.5 bg-white/20 backdrop-blur-sm ${selectedTheme === 'gold' ? 'text-yellow-900' : 'text-white'} text-xs font-bold px-2.5 py-0.5 rounded shadow-inner uppercase tracking-wider z-10`}>
                                 {displayMonthYear}
                               </div>
                             </div>
@@ -653,73 +653,73 @@
                         return (
                           <div key={month} className={`bg-white rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center p-4 h-[160px] text-slate-400 shadow-sm transition-all duration-300 z-10 mt-4`}>
                             <Calendar size={24} className="mb-2 text-slate-300" />
-                            <p className="font-extrabold text-slate-500 text-sm">{displayMonthYear}</p>
-                            <p className="text-[9px] mt-1 font-medium bg-slate-100 px-2 py-0.5 rounded text-slate-500">Awaiting Entry</p>
+                            <p className="font-extrabold text-slate-500 text-base">{displayMonthYear}</p>
+                            <p className="text-[10px] mt-1 font-medium bg-slate-100 px-2 py-0.5 rounded text-slate-500">Awaiting Entry</p>
                           </div>
                         );
                       }
                     })}
                   </div>
 
-                  {/* GRAND CARD - Tighter spacing above it */}
+                  {/* GRAND CARD - Restored to its original grand, spacious, and large design */}
                   {showYearWinner && (
-                    <div className="mt-2 pt-4 border-t-2 border-dashed border-slate-300 pb-2 animate-fade-in relative z-20">
-                      <div className="text-center mb-8">
-                        <h2 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 capitalize tracking-widest drop-shadow-sm flex justify-center items-center gap-2 leading-relaxed">
-                          <Crown size={24} className="text-yellow-500" fill="currentColor" />
+                    <div className="mt-8 pt-10 border-t-[3px] border-dashed border-slate-300 pb-6 animate-fade-in relative z-20">
+                      <div className="text-center mb-16">
+                        <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 capitalize tracking-widest drop-shadow-sm flex justify-center items-center gap-3 leading-relaxed">
+                          <Crown size={40} className="text-yellow-500" fill="currentColor" />
                           {selectedType} of the Year
-                          <Crown size={24} className="text-yellow-500" fill="currentColor" />
+                          <Crown size={40} className="text-yellow-500" fill="currentColor" />
                         </h2>
-                        <p className="text-slate-600 font-bold mt-0.5 text-xs uppercase tracking-widest">Highest Achiever ({selectedSession})</p>
+                        <p className="text-slate-600 font-bold mt-2 text-sm uppercase tracking-widest">Highest Achiever ({selectedSession})</p>
                       </div>
 
                       {yearWinner ? (
                         <div 
-                          className="max-w-md mx-auto bg-gradient-to-b from-yellow-100 via-white to-yellow-50 rounded-2xl shadow-lg border-2 border-yellow-300 overflow-hidden relative"
+                          className="max-w-xl mx-auto bg-gradient-to-b from-yellow-100 via-white to-yellow-50 rounded-3xl shadow-[0_20px_50px_rgb(234,179,8,0.3)] border-2 border-yellow-300 overflow-hidden relative"
                         >
-                          <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-300/30 rounded-full blur-2xl"></div>
-                          <div className="absolute bottom-0 left-0 w-24 h-24 bg-yellow-400/20 rounded-full blur-2xl"></div>
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-300/30 rounded-full blur-3xl"></div>
+                          <div className="absolute bottom-0 left-0 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl"></div>
 
-                          <div className="h-16 bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 flex justify-center items-center relative overflow-hidden">
-                             <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '16px 16px'}}></div>
-                             <div className="absolute top-2 bg-white/80 backdrop-blur text-yellow-800 text-[10px] font-black px-3 py-1 rounded-full shadow-sm border border-yellow-200 uppercase tracking-widest">
+                          <div className="h-32 bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 flex justify-center items-center relative overflow-hidden">
+                             <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
+                             <div className="absolute top-4 bg-white/80 backdrop-blur text-yellow-800 text-xs font-black px-4 py-1.5 rounded-full shadow-md border border-yellow-200 uppercase tracking-widest">
                                {yearWinner.winCount} Times Winner
                              </div>
                           </div>
 
-                          <div className="flex flex-col items-center px-4 pb-6 relative z-10 pt-12">
-                            <div className="absolute -top-10 w-20 h-20 rounded-full border-4 border-white shadow-xl bg-yellow-50 overflow-hidden p-1 ring-2 ring-yellow-400/30">
+                          <div className="flex flex-col items-center px-6 pb-10 relative z-10 pt-24">
+                            <div className="absolute -top-20 w-40 h-40 rounded-full border-8 border-white shadow-2xl bg-yellow-50 overflow-hidden p-1 ring-4 ring-yellow-400/30">
                               <img src={yearWinner.image} alt={yearWinner.name} className="w-full h-full object-cover rounded-full" />
                             </div>
                             
-                            <h3 className="text-xl font-black text-slate-900 text-center mt-1 uppercase tracking-tight leading-relaxed pb-0">{yearWinner.name}</h3>
-                            <div className="w-10 h-1 bg-gradient-to-r from-yellow-300 to-yellow-500 my-2 rounded-full"></div>
+                            <h3 className="text-3xl font-black text-slate-900 text-center mt-2 uppercase tracking-tight leading-relaxed pb-1">{yearWinner.name}</h3>
+                            <div className="w-16 h-1 bg-gradient-to-r from-yellow-300 to-yellow-500 my-4 rounded-full"></div>
                             
-                            <div className="flex flex-col items-center gap-1.5 text-slate-700 font-bold text-xs w-full max-w-[240px]">
-                              <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
-                                <Building size={12} className="text-blue-600" /> 
+                            <div className="flex flex-col items-center gap-2 text-slate-700 font-bold text-sm w-full">
+                              <div className="flex items-center justify-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-yellow-100 w-full max-w-[320px] leading-normal">
+                                <Building size={16} className="text-blue-600" /> 
                                 <span>Dealership: {yearWinner.dealership}</span>
                               </div>
                               {yearWinner.location && 
-                                <div className="flex items-center justify-center gap-1.5 bg-white px-3 py-1.5 rounded-lg shadow-sm border border-yellow-100 w-full leading-normal">
-                                  <MapPin size={12} className="text-red-500" /> 
+                                <div className="flex items-center justify-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-yellow-100 w-full max-w-[320px] leading-normal">
+                                  <MapPin size={16} className="text-red-500" /> 
                                   <span>Location: {yearWinner.location}</span>
                                 </div>
                               }
                             </div>
 
-                            <div className="mt-4 flex gap-1.5 justify-center">
-                              <Star className="text-yellow-400" fill="currentColor" size={16} />
-                              <Star className="text-yellow-500" fill="currentColor" size={24} />
-                              <Star className="text-yellow-400" fill="currentColor" size={16} />
+                            <div className="mt-8 flex gap-2 justify-center">
+                              <Star className="text-yellow-400" fill="currentColor" size={24} />
+                              <Star className="text-yellow-500" fill="currentColor" size={32} />
+                              <Star className="text-yellow-400" fill="currentColor" size={24} />
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <div className="max-w-md mx-auto bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-6 text-slate-400">
-                          <Trophy size={36} className="mb-2 text-slate-300" />
-                          <p className="font-extrabold text-slate-500 text-base">No record found</p>
-                          <p className="text-[10px] mt-1 text-center">No awards have been recorded for this session yet.</p>
+                        <div className="max-w-xl mx-auto bg-slate-100 rounded-3xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center p-12 text-slate-400">
+                          <Trophy size={64} className="mb-4 text-slate-300" />
+                          <p className="font-extrabold text-slate-500 text-xl">No record found</p>
+                          <p className="text-sm mt-2 text-center">No awards have been recorded for this session yet.</p>
                         </div>
                       )}
                     </div>
