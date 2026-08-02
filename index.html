@@ -96,10 +96,19 @@
       const [showYearWinner, setShowYearWinner] = useState(false); 
       const [gridLayout, setGridLayout] = useState('4'); 
       const [showAdvancedSettings, setShowAdvancedSettings] = useState(false); 
-      const [selectedTheme, setSelectedTheme] = useState('classic'); 
       
-      // Zoom ki state
-      const [zoomLevel, setZoomLevel] = useState(100); 
+      // --- NEW: Map default themes to each specific reward type ---
+      const [themePreferences, setThemePreferences] = useState({
+        'Employee': 'blue',
+        'AD': 'gold',
+        'EC': 'green',
+        'Shine 100 Star Performer': 'dark'
+      });
+      // Get theme for the currently selected type
+      const selectedTheme = themePreferences[selectedType] || 'classic';
+      
+      // --- NEW: Default zoom level set to 125% ---
+      const [zoomLevel, setZoomLevel] = useState(125); 
       const [isExporting, setIsExporting] = useState(false);
 
       // Data ki state
@@ -135,6 +144,18 @@
           const data = await response.json();
           setProfilesData(data.profiles || []);
           setAwardsData(data.awards || []);
+          
+          // Load settings if available
+          if (data.settings) {
+            const loadedThemes = { ...themePreferences }; // start with defaults
+            TYPES.forEach(type => {
+               if (data.settings[`theme_${type}`]) {
+                   loadedThemes[type] = data.settings[`theme_${type}`];
+               }
+            });
+            setThemePreferences(loadedThemes);
+          }
+          
         } catch (error) {
           console.error("Data Fetch Error:", error);
         } finally {
@@ -276,6 +297,28 @@
         if (!window.confirm("Are you sure you want to permanently delete this profile from the master database?")) return;
         const success = await sendToSheet('deleteProfile', { id });
         if (success && editingProfileId === id) cancelEdit();
+      };
+      
+      // --- Save Theme Preference to backend ---
+      const handleThemeChange = async (e) => {
+        const newTheme = e.target.value;
+        
+        // Update local state immediately for fast UI response
+        setThemePreferences(prev => ({...prev, [selectedType]: newTheme}));
+        
+        // Send to backend silently
+        try {
+          await fetch(SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ 
+               action: 'saveThemePreference', 
+               data: { type: selectedType, theme: newTheme } 
+            })
+          });
+        } catch (error) {
+          console.error("Error saving theme preference:", error);
+        }
       };
 
       const handleImageChange = async (e) => {
@@ -507,7 +550,7 @@
                         <Palette size={14} className="text-slate-400 ml-1" />
                         <select 
                           value={selectedTheme}
-                          onChange={(e) => setSelectedTheme(e.target.value)}
+                          onChange={handleThemeChange}
                           className="p-1 bg-transparent font-bold text-slate-700 focus:ring-0 outline-none text-xs cursor-pointer"
                           title="Card Theme"
                         >
@@ -681,10 +724,10 @@
                           <div className="absolute bottom-0 left-0 w-32 h-32 bg-yellow-400/20 rounded-full blur-3xl"></div>
 
                           <div className="h-32 bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 flex justify-center items-center relative overflow-hidden">
-                             <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
-                             <div className="absolute top-4 bg-white/80 backdrop-blur text-yellow-800 text-xs font-black px-4 py-1.5 rounded-full shadow-md border border-yellow-200 uppercase tracking-widest">
-                               {yearWinner.winCount} Times Winner
-                             </div>
+                              <div className="absolute inset-0 opacity-20" style={{backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
+                              <div className="absolute top-4 bg-white/80 backdrop-blur text-yellow-800 text-xs font-black px-4 py-1.5 rounded-full shadow-md border border-yellow-200 uppercase tracking-widest">
+                                {yearWinner.winCount} Times Winner
+                              </div>
                           </div>
 
                           <div className="flex flex-col items-center px-6 pb-10 relative z-10 pt-24">
